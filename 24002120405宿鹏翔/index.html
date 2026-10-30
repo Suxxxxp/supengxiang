@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="宿鹏翔的高级网页设计课堂实践目录">
+	<title>高级网页设计 | 宿鹏翔的课堂实践</title>
+	<style>
+		:root { --ink:#10232b; --muted:#61777d; --paper:#f4f1e9; --panel:#fffdf7; --line:#d9ded7; --teal:#087f7b; --teal-dark:#07565b; --coral:#ec765c; --yellow:#f3c969; --shadow:0 22px 55px rgba(20,48,51,.12); }
+		* { box-sizing:border-box; }
+		html { scroll-behavior:smooth; }
+		body { margin:0; color:var(--ink); background:radial-gradient(circle at 12% 8%,rgba(243,201,105,.28),transparent 22rem),linear-gradient(135deg,#f8f4e9 0%,#edf4ef 52%,#e5efee 100%); font-family:"Microsoft YaHei","PingFang SC",sans-serif; line-height:1.7; }
+		a { color:inherit; text-decoration:none; }
+		.site-header, main { max-width:1180px; margin:0 auto; padding-left:28px; padding-right:28px; }
+		.site-header { padding-top:28px; }
+		.topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+		.brand { display:inline-flex; align-items:center; gap:12px; font-size:14px; font-weight:700; letter-spacing:.08em; }
+		.brand-mark { display:grid; width:38px; height:38px; place-items:center; color:var(--panel); background:var(--teal); border-radius:12px 12px 12px 3px; font-family:Georgia,serif; font-size:19px; }
+		.top-link { color:var(--teal-dark); font-size:13px; font-weight:700; }
+		.hero { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr); gap:50px; align-items:end; padding:100px 0 85px; animation:rise-in .7s .08s ease both; }
+		.eyebrow { margin:0 0 18px; color:var(--coral); font-size:12px; font-weight:800; letter-spacing:.2em; }
+		h1,h2,p { margin-top:0; }
+		h1 { max-width:720px; margin-bottom:22px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(44px,7vw,86px); font-weight:400; line-height:1.05; }
+		.hero-copy { max-width:570px; margin-bottom:0; color:var(--muted); font-size:17px; }
+		.hero-note { padding:24px 25px 22px; border:1px solid rgba(8,127,123,.25); border-radius:5px 28px 5px 28px; background:rgba(255,253,247,.68); box-shadow:var(--shadow); }
+		.hero-note strong { display:block; margin-bottom:8px; color:var(--teal-dark); font-size:14px; }
+		.hero-note p { margin-bottom:0; color:var(--muted); font-size:14px; }
+		main { padding-bottom:72px; }
+		.section-heading { display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:18px; border-bottom:1px solid var(--line); animation:rise-in .7s .16s ease both; }
+		.section-heading h2 { margin-bottom:0; font-size:25px; }
+		.section-heading span { color:var(--muted); font-size:13px; }
+		.module-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:24px; animation:rise-in .7s .24s ease both; }
+		.module-card { position:relative; display:flex; min-height:258px; flex-direction:column; justify-content:space-between; padding:24px; overflow:hidden; border:1px solid var(--line); background:var(--panel); transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease; }
+		.module-card::after { position:absolute; right:-35px; bottom:-48px; width:130px; height:130px; border:1px solid rgba(8,127,123,.22); border-radius:50%; content:""; }
+		.module-card:hover,.module-card:focus-visible { border-color:var(--teal); box-shadow:var(--shadow); transform:translateY(-5px); }
+		.module-card:nth-child(2) { background:#e7f1ed; }
+		.module-card:nth-child(3) { background:#fff3df; }
+		.module-number { color:var(--coral); font-family:Georgia,serif; font-size:14px; }
+		.module-card h3 { margin:27px 0 8px; font-size:23px; }
+		.module-card p { max-width:245px; margin-bottom:0; color:var(--muted); font-size:14px; }
+		.open-link { z-index:1; align-self:flex-start; margin-top:24px; color:var(--teal-dark); font-size:13px; font-weight:800; }
+		.open-link::after { margin-left:7px; content:"->"; }
+		.brief { display:grid; grid-template-columns:.7fr 1.3fr; gap:28px; margin-top:72px; padding:30px; background:var(--teal-dark); color:#f5f1e7; animation:rise-in .7s .32s ease both; }
+		.brief h2 { margin-bottom:10px; font-size:22px; font-weight:500; }
+		.brief p { margin-bottom:0; color:#c9ddda; font-size:13px; }
+		.prompt { padding-left:28px; border-left:1px solid rgba(255,255,255,.28); }
+		.prompt p { color:#f5f1e7; font-size:15px; }
+		footer { padding:22px 28px 30px; color:var(--muted); font-size:12px; text-align:center; }
+		@keyframes rise-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+		@media (max-width:760px) { .site-header { padding-top:20px; } .hero { grid-template-columns:1fr; gap:30px; padding:72px 0 60px; } .module-grid { grid-template-columns:1fr; } .module-card { min-height:220px; } .brief { grid-template-columns:1fr; gap:22px; margin-top:52px; padding:24px; } .prompt { padding:20px 0 0; border-top:1px solid rgba(255,255,255,.28); border-left:0; } }
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<div class="topbar">
+			<a class="brand" href="./index.html" aria-label="返回课程首页"><span class="brand-mark">S</span><span>宿鹏翔 / WEB PRACTICE</span></a>
+			<a class="top-link" href="#directory">课堂目录 +</a>
+		</div>
+		<section class="hero" aria-labelledby="page-title">
+			<div><p class="eyebrow">ADVANCED WEB DESIGN / CLASS PRACTICE</p><h1 id="page-title">高级网页设计<br>课堂实践</h1><p class="hero-copy">从布局、图标到交互，把每一次课堂练习整理成一份可以持续生长的网页作品集。</p></div>
+			<aside class="hero-note"><strong>当前进度 / 03 modules ready</strong><p>目录会随着学习继续扩展。点击下方模块，进入对应的独立实践页面。</p></aside>
+		</section>
+	</header>
+	<main>
+		<section id="directory" aria-labelledby="directory-title">
+			<div class="section-heading"><h2 id="directory-title">课堂目录</h2><span>探索已完成的实践页面</span></div>
+			<div class="module-grid">
+				<a class="module-card" href="./review-flex.html"><div><span class="module-number">01 / LAYOUT</span><h3>Flex 复习</h3><p>导航布局、三等分布局、响应式卡片与侧边栏结构练习。</p></div><span class="open-link">进入页面</span></a>
+				<a class="module-card" href="./font/demo_index.html"><div><span class="module-number">02 / ICON</span><h3>字体图标</h3><p>查看本地字体图标 Demo，认识 Unicode、Font Class 与 Symbol。</p></div><span class="open-link">进入页面</span></a>
+				<a class="module-card" href="./svg.html"><div><span class="module-number">03 / SVG</span><h3>SVG 图标</h3><p>使用 SVG symbol 和 tab 交互，体验轻量的图标导航。</p></div><span class="open-link">进入页面</span></a>
+			</div>
+		</section>
+		<section class="brief" aria-labelledby="brief-title">
+			<div><h2 id="brief-title">后续模块</h2><p>这里是课程实践的持续记录区。</p></div>
+			<div class="prompt"><p>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为宿鹏翔的《高级网页设计》课堂实践，美化页面，课堂目录中包含flex复习、字体图标、其余模块后续在增加。页面中包括本提示词。</p></div>
+		</section>
+	</main>
+	<footer>宿鹏翔的《高级网页设计》课堂实践 · <span id="year"></span></footer>
+	<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
