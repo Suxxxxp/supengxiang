@@ -1,0 +1,3 @@
+[submodule "terrible-crap"]
+	path = terrible-crap
+	url = https://gitee.com/neusoft_wangyao_jsj/terrible-crap.git
