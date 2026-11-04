@@ -24,14 +24,14 @@
             padding: 24px 16px;
         }
 
-        /* 页面容器：居中，宽度与截图接近 */
-        .page {
+        /* 宿鹏翔：页面容器，整体居中，宽度与截图保持一致 */
+        .spx_page {
             max-width: 640px;
             margin: 0 auto;
         }
 
-        /* 头部：左边「排行榜」标题，右边 Tab 切换 */
-        .header {
+        /* 宿鹏翔：头部区域，左侧「排行榜」标题、右侧选项卡导航 */
+        .spx_header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -40,203 +40,207 @@
             margin-bottom: 20px;
         }
 
-        .header h1 {
-            font-size: 28px;
+        .spx_header h1 {
+            font-size: 30px;
             font-weight: bold;
             color: #1a1a1a;
             letter-spacing: 1px;
         }
 
-        /* Tab 导航 */
-        .tabs {
+        /* 宿鹏翔：右侧选项卡导航容器 */
+        .spx_tabs {
             display: flex;
-            gap: 28px;
-            padding-bottom: 8px;
+            gap: 26px;
+            padding-bottom: 6px;
         }
 
-        .tabs a {
-            font-size: 16px;
+        /* 宿鹏翔：单个选项卡链接样式 */
+        .spx_tab_link {
+            font-size: 17px;
             color: #666;
             text-decoration: none;
-            padding-bottom: 4px;
+            padding-bottom: 3px;
             transition: color .15s;
         }
 
-        .tabs a:hover {
+        .spx_tab_link:hover {
             color: #1a73e8;
         }
 
-        .tabs a.active {
+        /* 宿鹏翔：当前选中的选项卡，红色下划线 */
+        .spx_tab_link.spx_active {
             color: #1a1a1a;
             font-weight: bold;
             border-bottom: 3px solid #d40000;
         }
 
-        /* 新闻列表 */
-        .news-list {
+        /* 宿鹏翔：新闻排行榜列表 */
+        .spx_news_list {
             list-style: none;
         }
 
-        .news-item {
+        /* 宿鹏翔：单条新闻，序号与文字左右排列 */
+        .spx_news_item {
             display: flex;
-            gap: 12px;
-            padding: 14px 0;
-            border-bottom: 1px dashed #eee;
+            gap: 14px;
+            padding: 15px 0;
         }
 
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        /* 红色序号 */
-        .rank {
+        /* 宿鹏翔：红色序号 */
+        .spx_rank {
             flex-shrink: 0;
-            width: 28px;
-            font-size: 20px;
+            width: 26px;
+            font-size: 22px;
             font-weight: bold;
             color: #d40000;
             text-align: center;
-            line-height: 1.4;
+            line-height: 1.35;
         }
 
-        .news-content {
+        /* 宿鹏翔：新闻正文区，包含标题与摘要 */
+        .spx_news_content {
             flex: 1;
             min-width: 0;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 12px;
         }
 
-        .news-title {
-            font-size: 15px;
-            color: #1a1a1a;
+        /* 宿鹏翔：新闻标题 */
+        .spx_news_title {
+            font-size: 17px;
+            color: #222;
             line-height: 1.6;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             cursor: pointer;
         }
 
-        .news-title:hover {
+        .spx_news_title:hover {
             color: #d40000;
         }
 
-        .news-summary {
-            font-size: 13px;
+        /* 宿鹏翔：灰色新闻摘要，超出一行省略 */
+        .spx_news_summary {
+            font-size: 14px;
             color: #999;
             line-height: 1.5;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
+            white-space: nowrap;
         }
 
+        /* 宿鹏翔：窄屏适配，头部改为上下排列 */
         @media (max-width: 480px) {
-            .header {
+            .spx_header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 14px;
             }
-            .tabs {
+            .spx_tabs {
                 gap: 18px;
                 flex-wrap: wrap;
             }
-            .rank {
+            .spx_rank {
                 width: 22px;
-                font-size: 16px;
+                font-size: 18px;
             }
-            .news-title {
-                font-size: 14px;
+            .spx_news_title {
+                font-size: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="header">
+    <!-- 宿鹏翔：排行榜整体容器 -->
+    <div class="spx_page">
+        <div class="spx_header">
             <h1>排行榜</h1>
-            <div class="tabs">
-                <a href="#" class="active">新闻</a>
-                <a href="#">证券</a>
-                <a href="#">理财</a>
-                <a href="#">博客</a>
+            <div class="spx_tabs">
+                <a href="#" class="spx_tab_link spx_active">新闻</a>
+                <a href="#" class="spx_tab_link">证券</a>
+                <a href="#" class="spx_tab_link">理财</a>
+                <a href="#" class="spx_tab_link">博客</a>
             </div>
         </div>
 
-        <ul class="news-list">
-            <li class="news-item">
-                <span class="rank">1</span>
-                <div class="news-content">
-                    <div class="news-title">构建"股市+债市"稳市机制！央行新工具来了</div>
-                    <div class="news-summary">央行宣布创新两项货币政策工具，进一步完善金融调控框架。</div>
+        <!-- 宿鹏翔：新闻排行榜列表，序号 1-10 -->
+        <ul class="spx_news_list">
+            <li class="spx_news_item">
+                <span class="spx_rank">1</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">构建"股市+债市"稳市机制！央行新工具来了</div>
+                    <div class="spx_news_summary">央行宣布创新两项货币政策工具，进一步完善金融调控框架。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">2</span>
-                <div class="news-content">
-                    <div class="news-title">美媒：美军已准备好再打击伊朗 特朗普或中期选举后</div>
-                    <div class="news-summary">据美国媒体报道，美军已在中东部署多艘航母及战略轰炸机。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">2</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">美媒：美军已准备好再打击伊朗 特朗普或中期选举后</div>
+                    <div class="spx_news_summary">据美国媒体报道，美军已在中东部署多艘航母及战略轰炸机。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">3</span>
-                <div class="news-content">
-                    <div class="news-title">姆巴佩发表涉中国不当言论，多家品牌终止合作，媒</div>
-                    <div class="news-summary">姆巴佩的不当言论引发广泛关注，多家国际品牌宣布暂停与其合作。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">3</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">姆巴佩发表涉中国不当言论，多家品牌终止合作，媒</div>
+                    <div class="spx_news_summary">姆巴佩的不当言论引发广泛关注，多家国际品牌宣布暂停与其合作。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">4</span>
-                <div class="news-content">
-                    <div class="news-title">东鹏饮料集团：零容忍伤害民族感情行为，终止与姆</div>
-                    <div class="news-summary">东鹏饮料正式宣布终止与姆巴佩的全部商业合作。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">4</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">东鹏饮料集团：零容忍伤害民族感情行为，终止与姆</div>
+                    <div class="spx_news_summary">东鹏饮料正式宣布终止与姆巴佩的全部商业合作。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">5</span>
-                <div class="news-content">
-                    <div class="news-title">300672，业绩暴增超5600%！10股业绩大增（附股）</div>
-                    <div class="news-summary">多家A股上市公司发布三季报，业绩增长显著。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">5</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">300672，业绩暴增超5600%！10股业绩大增（附股）</div>
+                    <div class="spx_news_summary">多家A股上市公司发布三季报，业绩增长显著。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">6</span>
-                <div class="news-content">
-                    <div class="news-title">史上最大IPO要来了！7位创始人身家均超130亿美元</div>
-                    <div class="news-summary">一家科技巨头即将启动IPO，估值有望创下纪录。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">6</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">史上最大IPO要来了！7位创始人身家均超130亿美元</div>
+                    <div class="spx_news_summary">一家科技巨头即将启动IPO，估值有望创下纪录。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">7</span>
-                <div class="news-content">
-                    <div class="news-title">外交部：对英国警方任意、过度执法行为表示强烈不</div>
-                    <div class="news-summary">外交部就近期英国警方事件发表声明，表达严重关切。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">7</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">外交部：对英国警方任意、过度执法行为表示强烈不</div>
+                    <div class="spx_news_summary">外交部就近期英国警方事件发表声明，表达严重关切。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">8</span>
-                <div class="news-content">
-                    <div class="news-title">1000000美元！特朗普重金悬赏</div>
-                    <div class="news-summary">特朗普宣布提供百万美元悬赏以获取关键线索。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">8</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">1000000美元！特朗普重金悬赏</div>
+                    <div class="spx_news_summary">特朗普宣布提供百万美元悬赏以获取关键线索。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">9</span>
-                <div class="news-content">
-                    <div class="news-title">张一鸣以6700亿元刷新中国首富财富纪录！《2026胡</div>
-                    <div class="news-summary">《2026胡润百富榜》发布，张一鸣登顶中国首富。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">9</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">张一鸣以6700亿元刷新中国首富财富纪录！《2026胡</div>
+                    <div class="spx_news_summary">《2026胡润百富榜》发布，张一鸣登顶中国首富。</div>
                 </div>
             </li>
 
-            <li class="news-item">
-                <span class="rank">10</span>
-                <div class="news-content">
-                    <div class="news-title">Gucci卖不动了 开云今年将关掉至少125家门店</div>
-                    <div class="news-summary">开云集团宣布将对旗下品牌进行结构性调整。</div>
+            <li class="spx_news_item">
+                <span class="spx_rank">10</span>
+                <div class="spx_news_content">
+                    <div class="spx_news_title">Gucci卖不动了 开云今年将关掉至少125家门店</div>
+                    <div class="spx_news_summary">开云集团宣布将对旗下品牌进行结构性调整。</div>
                 </div>
             </li>
         </ul>
