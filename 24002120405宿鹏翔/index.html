@@ -2,7 +2,7 @@
   作者：宿鹏翔
   建立时间：2026-11-04
   使用大模型：DeepSeek-V4.1-Flash
-  功能名称：新浪新闻排行榜页面还原
+  功能名称：新浪新闻排行榜页面还原（顶部页面导航版）
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -19,25 +19,90 @@
 
         body {
             font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-            background: #fff;
+            background: #f7f8fa;
             color: #333;
-            padding: 24px 16px;
         }
 
-        /* 宿鹏翔：页面容器，整体居中，宽度与截图保持一致 */
-        .spx_page {
-            max-width: 640px;
+        /* 宿鹏翔：顶部导航栏，吸顶显示，可跳转到各实践页面 */
+        .spx_topnav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #fff;
+            border-bottom: 1px solid #ececec;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, .04);
+        }
+
+        .spx_topnav_inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            max-width: 720px;
+            height: 56px;
             margin: 0 auto;
+            padding: 0 16px;
         }
 
-        /* 宿鹏翔：头部区域，左侧「排行榜」标题、右侧选项卡导航 */
+        /* 宿鹏翔：左侧站点标识 */
+        .spx_brand {
+            flex-shrink: 0;
+            font-size: 15px;
+            font-weight: bold;
+            color: #d40000;
+            letter-spacing: .5px;
+            text-decoration: none;
+        }
+
+        /* 宿鹏翔：导航菜单容器，窄屏可横向滚动 */
+        .spx_nav_list {
+            display: flex;
+            gap: 22px;
+            overflow-x: auto;
+            list-style: none;
+        }
+
+        /* 宿鹏翔：单个导航链接 */
+        .spx_nav_link {
+            display: block;
+            padding: 6px 1px;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+        }
+
+        .spx_nav_link:hover {
+            color: #d40000;
+        }
+
+        /* 宿鹏翔：当前所在页面的导航项高亮 */
+        .spx_nav_link.spx_active {
+            color: #d40000;
+            font-weight: bold;
+            border-bottom-color: #d40000;
+        }
+
+        /* 宿鹏翔：页面主体容器，白色卡片居中 */
+        .spx_page {
+            max-width: 720px;
+            margin: 28px auto 40px;
+            padding: 26px 26px 30px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, .06);
+        }
+
+        /* 宿鹏翔：标题区，左侧「排行榜」标题、右侧选项卡导航 */
         .spx_header {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            padding-bottom: 12px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e6e6e6;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
         }
 
         .spx_header h1 {
@@ -51,15 +116,15 @@
         .spx_tabs {
             display: flex;
             gap: 26px;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
         }
 
         /* 宿鹏翔：单个选项卡链接样式 */
         .spx_tab_link {
+            padding-bottom: 3px;
             font-size: 17px;
             color: #666;
             text-decoration: none;
-            padding-bottom: 3px;
             transition: color .15s;
         }
 
@@ -79,11 +144,17 @@
             list-style: none;
         }
 
-        /* 宿鹏翔：单条新闻，序号与文字左右排列 */
+        /* 宿鹏翔：单条新闻，序号与文字左右排列，悬停浅灰底 */
         .spx_news_item {
             display: flex;
             gap: 14px;
-            padding: 15px 0;
+            padding: 15px 8px;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+
+        .spx_news_item:hover {
+            background: #fafafa;
         }
 
         /* 宿鹏翔：红色序号 */
@@ -97,20 +168,25 @@
             line-height: 1.35;
         }
 
-        /* 宿鹏翔：新闻正文区，包含标题与摘要 */
+        /* 宿鹏翔：新闻正文区，含标题与摘要，底部虚线分隔 */
         .spx_news_content {
             flex: 1;
             min-width: 0;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 12px;
+            padding-bottom: 13px;
+            border-bottom: 1px dashed #ececec;
+        }
+
+        /* 宿鹏翔：最后一条新闻去掉分隔线 */
+        .spx_news_item:last-child .spx_news_content {
+            border-bottom: none;
         }
 
         /* 宿鹏翔：新闻标题 */
         .spx_news_title {
+            margin-bottom: 5px;
             font-size: 17px;
             color: #222;
             line-height: 1.6;
-            margin-bottom: 5px;
             cursor: pointer;
         }
 
@@ -120,16 +196,20 @@
 
         /* 宿鹏翔：灰色新闻摘要，超出一行省略 */
         .spx_news_summary {
+            overflow: hidden;
             font-size: 14px;
             color: #999;
             line-height: 1.5;
-            overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* 宿鹏翔：窄屏适配，头部改为上下排列 */
+        /* 宿鹏翔：窄屏适配，导航可滑动、标题区改为上下排列 */
         @media (max-width: 480px) {
+            .spx_page {
+                margin: 16px 12px 24px;
+                padding: 18px 16px 22px;
+            }
             .spx_header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -150,7 +230,22 @@
     </style>
 </head>
 <body>
-    <!-- 宿鹏翔：排行榜整体容器 -->
+    <!-- 宿鹏翔：顶部导航，可在各实践页面之间跳转 -->
+    <nav class="spx_topnav">
+        <div class="spx_topnav_inner">
+            <a class="spx_brand" href="./index.html">宿鹏翔 · 高级网页设计</a>
+            <ul class="spx_nav_list">
+                <li><a class="spx_nav_link spx_active" href="./index.html">排行榜</a></li>
+                <li><a class="spx_nav_link" href="./tab.html">选项卡</a></li>
+                <li><a class="spx_nav_link" href="./review-flex.html">Flex 复习</a></li>
+                <li><a class="spx_nav_link" href="./svg.html">SVG 图标</a></li>
+                <li><a class="spx_nav_link" href="./font/demo_index.html">字体图标</a></li>
+                <li><a class="spx_nav_link" href="./swiper-task.html">Swiper 轮播</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 宿鹏翔：排行榜主体容器 -->
     <div class="spx_page">
         <div class="spx_header">
             <h1>排行榜</h1>

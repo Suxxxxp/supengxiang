@@ -19,22 +19,84 @@
 
         body {
             font-family: "Microsoft YaHei", Arial, sans-serif;
-            background: #f5f6f8;
+            background: #f7f8fa;
             color: #333;
-            padding: 40px 16px;
+            padding: 0;
+        }
+
+        /* 宿鹏翔：顶部导航栏，吸顶显示，可跳转到各实践页面 */
+        .spx_topnav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #fff;
+            border-bottom: 1px solid #ececec;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, .04);
+        }
+
+        .spx_topnav_inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            max-width: 720px;
+            height: 56px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* 宿鹏翔：左侧站点标识 */
+        .spx_brand {
+            flex-shrink: 0;
+            font-size: 15px;
+            font-weight: bold;
+            color: #d40000;
+            letter-spacing: .5px;
+            text-decoration: none;
+        }
+
+        /* 宿鹏翔：导航菜单容器，窄屏可横向滚动 */
+        .spx_nav_list {
+            display: flex;
+            gap: 22px;
+            overflow-x: auto;
+            list-style: none;
+        }
+
+        /* 宿鹏翔：单个导航链接 */
+        .spx_nav_link {
+            display: block;
+            padding: 6px 1px;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+        }
+
+        .spx_nav_link:hover {
+            color: #d40000;
+        }
+
+        /* 宿鹏翔：当前所在页面的导航项高亮 */
+        .spx_nav_link.spx_active {
+            color: #d40000;
+            font-weight: bold;
+            border-bottom-color: #d40000;
         }
 
         /* 宿鹏翔：页面标题 */
         .spx_page_title {
             max-width: 760px;
-            margin: 0 auto 20px;
+            margin: 36px auto 20px;
             font-size: 22px;
         }
 
         /* 宿鹏翔：选项卡整体容器，结构可整体复制复用 */
         .spx_tabs {
             max-width: 760px;
-            margin: 0 auto;
+            margin: 0 auto 48px;
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
@@ -118,6 +180,21 @@
     </style>
 </head>
 <body>
+    <!-- 宿鹏翔：顶部导航，可在各实践页面之间跳转 -->
+    <nav class="spx_topnav">
+        <div class="spx_topnav_inner">
+            <a class="spx_brand" href="./index.html">宿鹏翔 · 高级网页设计</a>
+            <ul class="spx_nav_list">
+                <li><a class="spx_nav_link" href="./index.html">排行榜</a></li>
+                <li><a class="spx_nav_link spx_active" href="./tab.html">选项卡</a></li>
+                <li><a class="spx_nav_link" href="./review-flex.html">Flex 复习</a></li>
+                <li><a class="spx_nav_link" href="./svg.html">SVG 图标</a></li>
+                <li><a class="spx_nav_link" href="./font/demo_index.html">字体图标</a></li>
+                <li><a class="spx_nav_link" href="./swiper-task.html">Swiper 轮播</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <h1 class="spx_page_title">新闻中心</h1>
 
     <!-- 宿鹏翔：选项卡容器，data-target 与下方面板 id 一一对应，结构可整体复制复用 -->
