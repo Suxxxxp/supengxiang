@@ -1,11 +1,113 @@
+<!--
+  作者：宿鹏翔
+  建立时间：2026-11-04
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：高级网页设计课堂实践首页
+-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=./24002120405宿鹏翔/">
-<title>网页开发与设计</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="宿鹏翔的高级网页设计课堂实践目录">
+	<title>高级网页设计 | 宿鹏翔的课堂实践</title>
+	<style>
+		:root { --spx_ink:#10232b; --spx_muted:#61777d; --spx_paper:#f4f1e9; --spx_panel:#fffdf7; --spx_line:#d9ded7; --spx_teal:#087f7b; --spx_teal_dark:#07565b; --spx_coral:#ec765c; --spx_yellow:#f3c969; --spx_shadow:0 22px 55px rgba(20,48,51,.12); }
+		* { box-sizing:border-box; }
+		html { scroll-behavior:smooth; }
+		body { margin:0; color:var(--spx_ink); background:radial-gradient(circle at 12% 8%,rgba(243,201,105,.28),transparent 22rem),linear-gradient(135deg,#f8f4e9 0%,#edf4ef 52%,#e5efee 100%); font-family:"Microsoft YaHei","PingFang SC",sans-serif; line-height:1.7; }
+		a { color:inherit; text-decoration:none; }
+		/* 宿鹏翔：页头与主体统一宽度 */
+		.spx_site_header, .spx_main { max-width:1180px; margin:0 auto; padding-left:28px; padding-right:28px; }
+		.spx_site_header { padding-top:28px; }
+		/* 宿鹏翔：顶部标识与跳转链接 */
+		.spx_topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+		.spx_brand { display:inline-flex; align-items:center; gap:12px; font-size:14px; font-weight:700; letter-spacing:.08em; }
+		.spx_brand_mark { display:grid; width:38px; height:38px; place-items:center; color:var(--spx_panel); background:var(--spx_teal); border-radius:12px 12px 12px 3px; font-family:Georgia,serif; font-size:19px; }
+		.spx_top_link { color:var(--spx_teal_dark); font-size:13px; font-weight:700; }
+		/* 宿鹏翔：首页大标题区 */
+		.spx_hero { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr); gap:50px; align-items:end; padding:100px 0 85px; animation:spx_rise_in .7s .08s ease both; }
+		.spx_eyebrow { margin:0 0 18px; color:var(--spx_coral); font-size:12px; font-weight:800; letter-spacing:.2em; }
+		h1,h2,p { margin-top:0; }
+		h1 { max-width:720px; margin-bottom:22px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(44px,7vw,86px); font-weight:400; line-height:1.05; }
+		.spx_hero_copy { max-width:570px; margin-bottom:0; color:var(--spx_muted); font-size:17px; }
+		.spx_hero_note { padding:24px 25px 22px; border:1px solid rgba(8,127,123,.25); border-radius:5px 28px 5px 28px; background:rgba(255,253,247,.68); box-shadow:var(--spx_shadow); }
+		.spx_hero_note strong { display:block; margin-bottom:8px; color:var(--spx_teal_dark); font-size:14px; }
+		.spx_hero_note p { margin-bottom:0; color:var(--spx_muted); font-size:14px; }
+		.spx_main { padding-bottom:72px; }
+		/* 宿鹏翔：课堂目录标题栏 */
+		.spx_section_heading { display:flex; justify-content:space-between; align-items:baseline; gap:20px; padding-bottom:18px; border-bottom:1px solid var(--spx_line); animation:spx_rise_in .7s .16s ease both; }
+		.spx_section_heading h2 { margin-bottom:0; font-size:25px; }
+		.spx_section_heading span { color:var(--spx_muted); font-size:13px; }
+		/* 宿鹏翔：模块卡片网格，六张卡片两行排列 */
+		.spx_module_grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:24px; animation:spx_rise_in .7s .24s ease both; }
+		.spx_module_card { position:relative; display:flex; min-height:258px; flex-direction:column; justify-content:space-between; padding:24px; overflow:hidden; border:1px solid var(--spx_line); background:var(--spx_panel); transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease; }
+		.spx_module_card::after { position:absolute; right:-35px; bottom:-48px; width:130px; height:130px; border:1px solid rgba(8,127,123,.22); border-radius:50%; content:""; }
+		.spx_module_card:hover,.spx_module_card:focus-visible { border-color:var(--spx_teal); box-shadow:var(--spx_shadow); transform:translateY(-5px); }
+		.spx_module_card:nth-child(2) { background:#e7f1ed; }
+		.spx_module_card:nth-child(3) { background:#fff3df; }
+		.spx_module_card:nth-child(5) { background:#e7f1ed; }
+		.spx_module_card:nth-child(6) { background:#fff3df; }
+		.spx_module_number { color:var(--spx_coral); font-family:Georgia,serif; font-size:14px; }
+		.spx_module_card h3 { margin:27px 0 8px; font-size:23px; }
+		.spx_module_card p { max-width:245px; margin-bottom:0; color:var(--spx_muted); font-size:14px; }
+		.spx_open_link { z-index:1; align-self:flex-start; margin-top:24px; color:var(--spx_teal_dark); font-size:13px; font-weight:800; }
+		.spx_open_link::after { margin-left:7px; content:"->"; }
+		/* 宿鹏翔：底部说明区 */
+		.spx_brief { display:grid; grid-template-columns:.7fr 1.3fr; gap:28px; margin-top:72px; padding:30px; background:var(--spx_teal_dark); color:#f5f1e7; animation:spx_rise_in .7s .32s ease both; }
+		.spx_brief h2 { margin-bottom:10px; font-size:22px; font-weight:500; }
+		.spx_brief p { margin-bottom:0; color:#c9ddda; font-size:13px; }
+		.spx_prompt { padding-left:28px; border-left:1px solid rgba(255,255,255,.28); }
+		.spx_prompt p { color:#f5f1e7; font-size:15px; }
+		.spx_footer { padding:22px 28px 30px; color:var(--spx_muted); font-size:12px; text-align:center; }
+		@keyframes spx_rise_in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+		@media (max-width:760px) {
+			.spx_site_header { padding-top:20px; }
+			.spx_hero { grid-template-columns:1fr; gap:30px; padding:72px 0 60px; }
+			.spx_module_grid { grid-template-columns:1fr; }
+			.spx_module_card { min-height:220px; }
+			.spx_brief { grid-template-columns:1fr; gap:22px; margin-top:52px; padding:24px; }
+			.spx_prompt { padding:20px 0 0; border-top:1px solid rgba(255,255,255,.28); border-left:0; }
+		}
+	</style>
 </head>
 <body>
-<p>正在跳转到 <a href="./24002120405宿鹏翔/">课程作业 24002120405宿鹏翔</a> …</p>
+	<!-- 宿鹏翔：页头与首页标题 -->
+	<header class="spx_site_header">
+		<div class="spx_topbar">
+			<a class="spx_brand" href="./index.html" aria-label="返回课程首页"><span class="spx_brand_mark">S</span><span>宿鹏翔 / WEB PRACTICE</span></a>
+			<a class="spx_top_link" href="#spx_directory">课堂目录 +</a>
+		</div>
+		<section class="spx_hero" aria-labelledby="spx_page_title">
+			<div><p class="spx_eyebrow">ADVANCED WEB DESIGN / CLASS PRACTICE</p><h1 id="spx_page_title">高级网页设计<br>课堂实践</h1><p class="spx_hero_copy">从布局、图标到交互与轮播组件，把每一次课堂练习整理成一份可以持续生长的网页作品集。</p></div>
+			<aside class="spx_hero_note"><strong>当前进度 / 06 modules ready</strong><p>目录会随着学习继续扩展。点击下方模块，进入对应的独立实践页面。</p></aside>
+		</section>
+	</header>
+
+	<main class="spx_main">
+		<!-- 宿鹏翔：课堂目录，汇总全部实践页面入口 -->
+		<section id="spx_directory" aria-labelledby="spx_directory_title">
+			<div class="spx_section_heading"><h2 id="spx_directory_title">课堂目录</h2><span>探索已完成的实践页面</span></div>
+			<div class="spx_module_grid">
+				<a class="spx_module_card" href="./24002120405宿鹏翔/index.html"><div><span class="spx_module_number">01 / NEWS</span><h3>排行榜页面</h3><p>还原新浪新闻排行榜：标题栏、栏目标签与红色排名列表。</p></div><span class="spx_open_link">进入页面</span></a>
+				<a class="spx_module_card" href="./swiper-task.html"><div><span class="spx_module_number">02 / CAROUSEL</span><h3>Swiper 轮播</h3><p>轮播组件课堂任务：拖动、圆点箭头、自动播放与六种切换效果。</p></div><span class="spx_open_link">进入页面</span></a>
+				<a class="spx_module_card" href="./24002120405宿鹏翔/tab.html"><div><span class="spx_module_number">03 / TAB</span><h3>Tab 选项卡</h3><p>可复用的选项卡组件，含选中态切换与内容面板联动。</p></div><span class="spx_open_link">进入页面</span></a>
+				<a class="spx_module_card" href="./24002120405宿鹏翔/review-flex.html"><div><span class="spx_module_number">04 / LAYOUT</span><h3>Flex 复习</h3><p>导航布局、三等分布局、响应式卡片与侧边栏结构练习。</p></div><span class="spx_open_link">进入页面</span></a>
+				<a class="spx_module_card" href="./24002120405宿鹏翔/svg.html"><div><span class="spx_module_number">05 / SVG</span><h3>SVG 图标</h3><p>使用 SVG symbol 和 tab 交互，体验轻量的图标导航。</p></div><span class="spx_open_link">进入页面</span></a>
+				<a class="spx_module_card" href="./24002120405宿鹏翔/font/demo_index.html"><div><span class="spx_module_number">06 / ICON</span><h3>字体图标</h3><p>查看本地字体图标 Demo，认识 Unicode、Font Class 与 Symbol。</p></div><span class="spx_open_link">进入页面</span></a>
+			</div>
+		</section>
+
+		<!-- 宿鹏翔：课程说明区 -->
+		<section class="spx_brief" aria-labelledby="spx_brief_title">
+			<div><h2 id="spx_brief_title">后续模块</h2><p>这里是课程实践的持续记录区。</p></div>
+			<div class="spx_prompt"><p>创建一个新页面，包括本目录下的所有网页的超链接，使用原生代码，不使用cdn，新页面名称为index.html，主题为宿鹏翔的《高级网页设计》课堂实践，美化页面，课堂目录中包含排行榜、Swiper轮播、选项卡、flex复习、字体图标、SVG图标。页面中包括本提示词。</p></div>
+		</section>
+	</main>
+	<footer class="spx_footer">宿鹏翔的《高级网页设计》课堂实践 · <span id="spx_year"></span></footer>
+	<script>
+		// 宿鹏翔：自动填充页脚年份
+		document.getElementById("spx_year").textContent = new Date().getFullYear();
+	</script>
 </body>
 </html>
