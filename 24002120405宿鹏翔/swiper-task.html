@@ -204,7 +204,7 @@
       <span class="wy-star">⭐ 验证标准：基础分——轮播自动翻页；进阶分——点 cube 按钮变 3D 立方体、点 fade 变淡入淡出</span>
     </div>
     <div class="wy-fx">
-      <button class="wy-on" data-fx="slide">slide 平推（默认·稳重）</button>
+      <button class="wy-on" data-fx="creative">creative 电影选片墙（推荐）</button>
       <button data-fx="fade">fade 淡入淡出（优雅）</button>
       <button data-fx="cube">cube 3D 立方体（炫酷）</button>
       <button data-fx="coverflow">coverflow 画廊堆叠（沉浸）</button>
@@ -282,6 +282,7 @@ var swiper = new Swiper("#wySw4", {
       slidesPerView: 1,
       spaceBetween: 30,
       loop: true,
+      speed: 700,
       pagination: {
         el: ".swiper-pagination",
         clickable: true,
@@ -290,7 +291,20 @@ var swiper = new Swiper("#wySw4", {
         delay: 3200,
         disableOnInteraction: false,
       },
-      effect: "cube",
+      effect: "creative",
+      creativeEffect: {
+        prev: {
+          translate: ["-105%", 20, -140],
+          scale: 0.72,
+          rotate: [0, 0, -12],
+          opacity: 0.55,
+        },
+        next: {
+          translate: ["105%", -12, 100],
+          scale: 1.25,
+          rotate: [0, 0, 8],
+        },
+      },
     });
 
 
@@ -313,6 +327,7 @@ var swiper = new Swiper("#wySw4", {
         slidesPerView: 1,
         spaceBetween: 30,
         loop: true,
+        speed: 700,
         pagination: {
           el: ".swiper-pagination",
           clickable: true,
@@ -322,6 +337,19 @@ var swiper = new Swiper("#wySw4", {
           disableOnInteraction: false,
         },
         effect: btn.dataset.fx,
+        creativeEffect: {
+          prev: {
+            translate: ["-105%", 20, -140],
+            scale: 0.72,
+            rotate: [0, 0, -12],
+            opacity: 0.55,
+          },
+          next: {
+            translate: ["105%", -12, 100],
+            scale: 1.25,
+            rotate: [0, 0, 8],
+          },
+        },
       });
     });
   });
