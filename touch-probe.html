@@ -1,0 +1,259 @@
+<!--
+  作者：宿鹏翔
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：移动端触摸事件探针实验（记录 5 种操作的事件触发顺序）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>触摸事件探针 · 宿鹏翔</title>
+<style>
+  /* 宿鹏翔：基础样式 */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  .spx_page { max-width: 640px; margin: 0 auto; }
+
+  /* 宿鹏翔：任务说明 */
+  .spx_head {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
+  .spx_head h1 { font-size: 18px; margin-bottom: 8px; letter-spacing: 1px; }
+  .spx_head p { font-size: 13px; line-height: 1.8; color: #d5dde5; }
+  .spx_head .spx_badge {
+    display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 999px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    margin-right: 6px; margin-bottom: 4px;
+  }
+
+  /* 宿鹏翔：操作说明表 */
+  .spx_ops {
+    background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  }
+  .spx_ops h2 { font-size: 14px; margin-bottom: 10px; color: #2c3e50; }
+  .spx_ops table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .spx_ops th, .spx_ops td {
+    padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1;
+  }
+  .spx_ops th { color: #7f8c8d; font-weight: normal; width: 40%; }
+  .spx_ops td { font-family: Consolas, monospace; color: #2c3e50; word-break: break-all; }
+
+  /* 宿鹏翔：探针区（第 3 节） */
+  .spx_probe {
+    background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  }
+  .spx_probe h2 { font-size: 14px; margin-bottom: 10px; color: #e67e22; }
+  .spx_probe_box {
+    width: 100%; height: 200px;
+    background: repeating-linear-gradient(45deg, #fef9e7, #fef9e7 14px, #fdebd0 14px, #fdebd0 28px);
+    border: 2px dashed #e67e22; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #d35400; font-weight: bold;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    touch-action: none; /* 宿鹏翔：禁止浏览器默认手势，让事件完整触发 */
+  }
+
+  /* 宿鹏翔：日志区 */
+  .spx_log {
+    background: #1a252f; border-radius: 10px; padding: 12px;
+    font-family: Consolas, monospace; font-size: 12px;
+    max-height: 260px; overflow-y: auto; margin-bottom: 14px;
+  }
+  .spx_log .spx_row { color: #bdc3c7; line-height: 1.7; }
+  .spx_log .spx_row b { color: #f1c40f; }
+  .spx_log .spx_row em { color: #2ecc71; font-style: normal; margin-left: 6px; }
+  .spx_log .spx_row.spx_ptr { color: #3498db; }
+  .spx_log .spx_row.spx_mouse { color: #9b59b6; }
+  .spx_log .spx_row.spx_ui { color: #e74c3c; }
+
+  /* 宿鹏翔：控制按钮 */
+  .spx_btns { display: flex; gap: 10px; }
+  .spx_btns button {
+    flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-family: inherit; transition: all .2s;
+  }
+  .spx_btn_clr { background: #e74c3c; color: #fff; }
+  .spx_btn_clr:hover { background: #c0392b; }
+  .spx_btn_copy { background: #3498db; color: #fff; }
+  .spx_btn_copy:hover { background: #2980b9; }
+</style>
+</head>
+<body>
+<div class="spx_page">
+
+  <!-- 宿鹏翔：任务说明 -->
+  <section class="spx_head">
+    <h1>📱 触摸事件探针实验</h1>
+    <p>
+      用手机（或 DevTools 设备模式）打开本页，对下方<b>橙色虚线框「探针区」</b>依次做 5 种操作，<br>
+      观察黑色日志窗口中<b>事件触发顺序</b>，并填入左侧表格。
+    </p>
+    <div style="margin-top:10px">
+      <span class="spx_badge">操作 ① 单击</span>
+      <span class="spx_badge">操作 ② 向上拖动</span>
+      <span class="spx_badge">操作 ③ 向左快速滑</span>
+      <span class="spx_badge">操作 ④ 双指触摸</span>
+      <span class="spx_badge">操作 ⑤ 长按后抬起</span>
+    </div>
+  </section>
+
+  <!-- 宿鹏翔：记录表格（第 2 节） -->
+  <section class="spx_ops">
+    <h2>📋 事件触发顺序记录表（把日志里的事件名按顺序抄进来）</h2>
+    <table>
+      <tr><th>① 单击一下</th><td id="spx_row_1">（在这里填）</td></tr>
+      <tr><th>② 向上拖动一段距离</th><td id="spx_row_2">（在这里填）</td></tr>
+      <tr><th>③ 向左快速滑一下</th><td id="spx_row_3">（在这里填）</td></tr>
+      <tr><th>④ 双指同时触摸</th><td id="spx_row_4">（在这里填）</td></tr>
+      <tr><th>⑤ 长按 1 秒后抬起</th><td id="spx_row_5">（在这里填）</td></tr>
+    </table>
+  </section>
+
+  <!-- 宿鹏翔：探针区（第 3 节） -->
+  <section class="spx_probe">
+    <h2>🎯 探针区（在这里做 5 种操作）</h2>
+    <div class="spx_probe_box" id="spx_probeBox">👉 在我上面触摸试试 👈</div>
+  </section>
+
+  <!-- 宿鹏翔：日志窗口 -->
+  <div class="spx_log" id="spx_log">
+    <div class="spx_row spx_ui">● 等待触摸操作…（共监听 touch / pointer / mouse / gesture 4 大类事件）</div>
+  </div>
+
+  <!-- 宿鹏翔：控制按钮 -->
+  <div class="spx_btns">
+    <button class="spx_btn_clr" id="spx_btnClr">🗑 清空日志</button>
+    <button class="spx_btn_copy" id="spx_btnCopy">📋 复制日志</button>
+  </div>
+
+  <!-- 宿鹏翔：验收小抄（三个问题的标准答案） -->
+  <section class="spx_ops" style="border: 1.5px dashed #3498db;">
+    <h2 style="color: #2980b9;">🎓 验收小抄（三个必答问题）</h2>
+    <table>
+      <tr><th style="width:12%; vertical-align:top;">问题 ①</th>
+          <td><b>一次拖动里 touchmove 大约触发多少次、和距离有什么关系？</b><br>
+              <span style="color:#555;font-size:12.5px;line-height:1.8">
+              答：<b>touchmove 不是按"距离"触发，而是按"时间帧"触发</b>——浏览器刷新率 60Hz（约 16ms 一次），高端设备 120Hz。
+              所以距离越长、拖动时间越久，touchmove 次数越多。典型一次 300px 拖动约触发 <b>10~30 次</b>；
+              快速短滑可能只有 3~5 次。同一次拖动里 pointermove 和 mousemove 次数大致同步。
+              </span></td></tr>
+      <tr><th style="vertical-align:top;">问题 ②</th>
+          <td><b>click 出现在 touchend 之前还是之后？</b><br>
+              <span style="color:#555;font-size:12.5px;line-height:1.8">
+              答：<b>touchend 在前，click 在后，中间隔约 300ms</b>（系统要等这 300ms 判断你是点击、长按还是滑动）。
+              顺序：<code>touchstart → pointerdown → mousedown → touchend → pointerup → mouseup → ~300ms → click</code>。
+              如果拖动距离超过 <b>~10px</b> 或长按超过 <b>~500ms</b>，系统会直接 <b>取消 click</b>。
+              </span></td></tr>
+      <tr><th style="vertical-align:top;">问题 ③</th>
+          <td><b>如果把 touchend 换成 touchcancel，会发生什么？</b><br>
+              <span style="color:#555;font-size:12.5px;line-height:1.8">
+              答：<b>touchcancel = 触摸被系统"偷走"，是异常终止</b>。触发场景：来电弹窗、手指滑出窗口、浏览器接管了滚动/缩放、页面被系统中断。
+              触发顺序变成 <code>touchstart → touchmove... → touchcancel（没有 touchend）</code>。
+              <b>touchcancel 之后不会触发 click</b>，也不会有 pointerup / mouseup。
+              所以做业务时 touchcancel 里也要写清理逻辑（停止动画、重置状态），不能只依赖 touchend。
+              </span></td></tr>
+    </table>
+  </section>
+
+</div>
+
+<script>
+// 宿鹏翔：探针区元素
+const SPX_BOX = document.getElementById('spx_probeBox');
+const SPX_LOG = document.getElementById('spx_log');
+
+// 宿鹏翔：事件计数，用时间戳保证顺序
+let spx_seq = 0;
+const SPX_START = Date.now();
+
+// 宿鹏翔：统一记录函数 —— category 决定颜色，extra 携带额外信息
+function spx_logEvt(name, category, extra) {
+  spx_seq++;
+  const dt = (Date.now() - SPX_START).toString().padStart(5, ' ');
+  let cls = '';
+  if (category === 'touch') cls = '';        // 默认灰色
+  else if (category === 'pointer') cls = 'spx_ptr';
+  else if (category === 'mouse') cls = 'spx_mouse';
+  else if (category === 'ui') cls = 'spx_ui';
+  else if (category === 'gesture') cls = 'spx_ui';
+
+  let info = '';
+  if (extra) info = '<em>' + extra + '</em>';
+
+  const row = document.createElement('div');
+  row.className = 'spx_row ' + cls;
+  row.innerHTML = '<b>#' + spx_seq + ' [' + dt + 'ms]</b> ' + name + info;
+  SPX_LOG.appendChild(row);
+  SPX_LOG.scrollTop = SPX_LOG.scrollHeight;
+}
+
+// 宿鹏翔：提取 touch/pointer 的关键数值
+function spx_touchInfo(e) {
+  const t = e.touches ? e.touches.length : null;
+  const p = e.pointerId !== undefined ? 'id=' + e.pointerId : '';
+  const ph = e.pointerType ? ' type=' + e.pointerType : '';
+  return 'touches=' + t + ' ' + p + ph;
+}
+
+// ── Touch Events ── //
+SPX_BOX.addEventListener('touchstart', function(e){ spx_logEvt('touchstart', 'touch', spx_touchInfo(e)); }, {passive:true});
+SPX_BOX.addEventListener('touchmove',  function(e){ spx_logEvt('touchmove',  'touch', spx_touchInfo(e)); }, {passive:true});
+SPX_BOX.addEventListener('touchend',   function(e){ spx_logEvt('touchend',   'touch', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('touchcancel',function(e){ spx_logEvt('touchcancel','touch', spx_touchInfo(e)); });
+
+// ── Pointer Events（现代浏览器统一模型，包括手机） ── //
+SPX_BOX.addEventListener('pointerdown',  function(e){ spx_logEvt('pointerdown',  'pointer', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('pointermove',  function(e){ spx_logEvt('pointermove',  'pointer', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('pointerup',    function(e){ spx_logEvt('pointerup',    'pointer', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('pointercancel',function(e){ spx_logEvt('pointercancel','pointer', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('pointerenter', function(e){ spx_logEvt('pointerenter', 'pointer', spx_touchInfo(e)); });
+SPX_BOX.addEventListener('pointerleave',function(e){ spx_logEvt('pointerleave','pointer', spx_touchInfo(e)); });
+
+// ── Mouse Events（桌面 DevTools 也会触发） ── //
+SPX_BOX.addEventListener('mousedown', function(e){ spx_logEvt('mousedown', 'mouse'); });
+SPX_BOX.addEventListener('mousemove', function(e){ spx_logEvt('mousemove', 'mouse'); });
+SPX_BOX.addEventListener('mouseup',   function(e){ spx_logEvt('mouseup',   'mouse'); });
+SPX_BOX.addEventListener('mouseenter',function(e){ spx_logEvt('mouseenter','mouse'); });
+SPX_BOX.addEventListener('mouseleave',function(e){ spx_logEvt('mouseleave','mouse'); });
+SPX_BOX.addEventListener('click',     function(e){ spx_logEvt('click',     'mouse'); });
+SPX_BOX.addEventListener('dblclick',  function(e){ spx_logEvt('dblclick',  'mouse'); });
+SPX_BOX.addEventListener('contextmenu', function(e){ spx_logEvt('contextmenu（长按菜单）', 'mouse'); });
+
+// ── iOS Safari 手势事件 ── //
+SPX_BOX.addEventListener('gesturestart', function(e){ spx_logEvt('gesturestart', 'gesture'); });
+SPX_BOX.addEventListener('gesturechange',function(e){ spx_logEvt('gesturechange','gesture'); });
+SPX_BOX.addEventListener('gestureend',   function(e){ spx_logEvt('gestureend',   'gesture'); });
+
+// 宿鹏翔：清空日志
+document.getElementById('spx_btnClr').addEventListener('click', function(){
+  SPX_LOG.innerHTML = '<div class="spx_row spx_ui">● 已清空，重新开始…</div>';
+  spx_seq = 0;
+});
+
+// 宿鹏翔：复制日志为纯文本
+document.getElementById('spx_btnCopy').addEventListener('click', async function(){
+  const text = SPX_LOG.innerText;
+  try {
+    await navigator.clipboard.writeText(text);
+    spx_logEvt('✅ 日志已复制到剪贴板', 'ui');
+  } catch(err) {
+    spx_logEvt('❌ 复制失败：' + err.message, 'ui');
+  }
+});
+</script>
+</body>
+</html>

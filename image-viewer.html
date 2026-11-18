@@ -1,0 +1,331 @@
+<!--
+  作者：宿鹏翔
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：图片查看器 · 双指缩放 / 双击切换 / 放大后拖动 / 缩回 1x 自动居中
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>图片查看器 · 宿鹏翔</title>
+<style>
+  /* 宿鹏翔：基础 */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #1a1a1a; color: #eee; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; padding: 16px;
+  }
+
+  /* 宿鹏翔：标题 */
+  .spx_title { text-align: center; margin-bottom: 14px; }
+  .spx_title h1 { font-size: 20px; letter-spacing: 2px; }
+  .spx_title p { font-size: 12px; color: #888; margin-top: 4px; }
+
+  /* 宿鹏翔：查看器舞台（裁剪区域） */
+  .spx_viewer {
+    width: 340px; height: 420px;
+    background: #000; border-radius: 12px; overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,.6);
+    touch-action: none; /* 宿鹏翔：接管全部手势 */
+  }
+  /* 宿鹏翔：内层 track（transform translate + scale 由它承担） */
+  .spx_track {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    will-change: transform;
+  }
+  .spx_track.spx_animating { transition: transform .28s cubic-bezier(.22,.61,.36,1); }
+  .spx_track.spx_dragging { transition: none; }
+  .spx_track img {
+    max-width: 100%; max-height: 100%;
+    pointer-events: none; user-select: none;
+    display: block;
+  }
+
+  /* 宿鹏翔：缩放指示器 */
+  .spx_scale_badge {
+    position: absolute; top: 10px; right: 12px;
+    background: rgba(0,0,0,.55); color: #fff;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 12px; font-family: Consolas, monospace;
+    pointer-events: none;
+  }
+  .spx_center_badge {
+    position: absolute; bottom: 10px; left: 12px;
+    background: rgba(0,0,0,.55); color: #fff;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .spx_center_badge.spx_show { opacity: 1; }
+
+  /* 宿鹏翔：底部控制条 */
+  .spx_ctrls {
+    display: flex; gap: 10px; justify-content: center; margin-top: 14px;
+  }
+  .spx_ctrls button {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid #444;
+    background: #2a2a2a; color: #eee; cursor: pointer; font-size: 13px;
+    transition: all .2s; font-family: inherit;
+  }
+  .spx_ctrls button:hover { border-color: #ff6b35; color: #ff6b35; }
+  .spx_ctrls button.spx_active { background: #ff6b35; border-color: #ff6b35; color: #fff; }
+
+  /* 宿鹏翔：验收清单 */
+  .spx_checklist {
+    background: #222; border-radius: 10px; padding: 14px 16px;
+    max-width: 340px; margin-top: 16px;
+    font-size: 12px; color: #bbb; line-height: 2;
+  }
+  .spx_checklist b { color: #ff6b35; }
+</style>
+</head>
+<body>
+
+<div class="spx_title">
+  <h1>🔍 图 片 查 看 器</h1>
+  <p>双指缩放 · 双击切换 · 放大拖动 · 缩回居中</p>
+</div>
+
+<!-- 宿鹏翔：查看器舞台 -->
+<div class="spx_viewer" id="spx_viewer">
+  <div class="spx_track" id="spx_track">
+    <img id="spx_img" src="https://picsum.photos/seed/viewer/800/1000" alt="测试图片">
+  </div>
+  <div class="spx_scale_badge" id="spx_scale">1.00x</div>
+  <div class="spx_center_badge" id="spx_center">已自动居中</div>
+</div>
+
+<!-- 宿鹏翔：底部快捷按钮（验收辅助） -->
+<div class="spx_ctrls">
+  <button data-s="1">1x</button>
+  <button data-s="2">2x</button>
+  <button data-s="3">3x</button>
+  <button data-s="4">4x</button>
+</div>
+
+<div class="spx_checklist">
+  <b>验收清单：</b><br>
+  ✅ 双指捏合 / 张开 → 缩放 1x ~ 4x<br>
+  ✅ 双击 → 1x ⇄ 2x 切换<br>
+  ✅ 放大后单指拖动 → 查看细节<br>
+  ✅ 缩回 1x → 自动居中归位
+</div>
+
+<script>
+// ── 宿鹏翔：元素引用 ── //
+const SPX_VIEWER = document.getElementById('spx_viewer');
+const SPX_TRACK  = document.getElementById('spx_track');
+const SPX_IMG    = document.getElementById('spx_img');
+const SPX_SCALE  = document.getElementById('spx_scale');
+const SPX_CENTER = document.getElementById('spx_center');
+
+// ── 宿鹏翔：当前变换状态（中心点 + 比例） ── //
+let spx_scale = 1;           // 当前缩放
+const SPX_MIN = 1, SPX_MAX = 4;
+let spx_tx = 0, spx_ty = 0;  // 当前平移（图片中心为原点）
+
+// ── 宿鹏翔：交互中状态 ── //
+let spx_mode = null;         // 'pan' | 'pinch' | null
+let spx_lastTapTime = 0;     // 上次点击时间（用于双击判定）
+let spx_lastTapX = 0, spx_lastTapY = 0;
+let spx_pinchDist0 = 0;      // 双指初始距离
+let spx_pinchScale0 = 1;     // 双指初始 scale
+let spx_pinchCx0 = 0, spx_pinchCy0 = 0; // 双指初始中点（相对 track）
+let spx_pinchTx0 = 0, spx_pinchTy0 = 0; // 双指初始平移
+let spx_panStartX = 0, spx_panStartY = 0;
+let spx_panTx0 = 0, spx_panTy0 = 0;
+let spx_touchStartX = 0, spx_touchStartY = 0; // touchstart 单指位置（双击判定前先记录）
+
+// ── 宿鹏翔：渲染 ── //
+function spx_apply(animate) {
+  if (animate) SPX_TRACK.classList.add('spx_animating');
+  else SPX_TRACK.classList.remove('spx_animating');
+  SPX_TRACK.style.transform = 'translate(' + spx_tx + 'px,' + spx_ty + 'px) scale(' + spx_scale + ')';
+  SPX_SCALE.textContent = spx_scale.toFixed(2) + 'x';
+  // 同步按钮高亮
+  document.querySelectorAll('.spx_ctrls button').forEach(function(b){
+    b.classList.toggle('spx_active', Math.abs(spx_scale - parseFloat(b.dataset.s)) < 0.15);
+  });
+}
+
+// ── 宿鹏翔：边界限制 ── //
+function spx_clampTxY() {
+  if (spx_scale <= 1) { spx_tx = 0; spx_ty = 0; return; }
+  // 图片在 scale 后超出舞台的一半距离（scale=2 时，1x 宽 340，scale 后 680，超出 340，单边可移 ±170）
+  const vw = SPX_VIEWER.offsetWidth;
+  const vh = SPX_VIEWER.offsetHeight;
+  const iw = SPX_IMG.naturalWidth || 800;
+  const ih = SPX_IMG.naturalHeight || 1000;
+  // 图片在舞台内按 contain 方式显示时 1x 的实际尺寸
+  const ratio = Math.min(vw / iw, vh / ih);
+  const w1 = iw * ratio, h1 = ih * ratio;
+  // scale 后图片尺寸
+  const ws = w1 * spx_scale, hs = h1 * spx_scale;
+  // 超出量（可能为负，不限制）
+  const maxX = Math.max(0, (ws - vw) / 2);
+  const maxY = Math.max(0, (hs - vh) / 2);
+  spx_tx = Math.max(-maxX, Math.min(maxX, spx_tx));
+  spx_ty = Math.max(-maxY, Math.min(maxY, spx_ty));
+}
+
+// ── 宿鹏翔：重置到 1x 居中 ── //
+function spx_reset() {
+  spx_scale = 1; spx_tx = 0; spx_ty = 0;
+  SPX_CENTER.classList.add('spx_show');
+  setTimeout(function(){ SPX_CENTER.classList.remove('spx_show'); }, 1200);
+  spx_apply(true);
+}
+
+// ── 宿鹏翔：以某点为中心缩放（pinch 用） ── //
+// spx_scale → newScale，同时保持 anchor（相对 track 的坐标）下的内容不动
+function spx_scaleAt(newScale, ax, ay) {
+  // anchor 在旧 scale 下的内容坐标 = (anchor - center - translate) / scale
+  // 新 translate = anchor - center - contentCoord * newScale
+  const vw = SPX_VIEWER.offsetWidth, vh = SPX_VIEWER.offsetHeight;
+  // track 的 transform-origin 是 0 0，图片在 track 中心
+  // anchor 是 track 内坐标（0~vw, 0~vh），内容点 (ax - vw/2 - tx) / scale + vw/2 ... 不对，简化：
+  // 让 anchor 在屏幕上看到的图片像素不变：
+  // 旧图片点（相对屏幕中心）= (anchor - centerOfTrack - tx) / scale
+  // 新 tx' = anchor - centerOfTrack - oldImgPoint * newScale
+  const cx = vw / 2, cy = vh / 2;
+  const oldContentX = (ax - cx - spx_tx) / spx_scale;
+  const oldContentY = (ay - cy - spx_ty) / spx_scale;
+  spx_tx = ax - cx - oldContentX * newScale;
+  spx_ty = ay - cy - oldContentY * newScale;
+  spx_scale = Math.max(SPX_MIN, Math.min(SPX_MAX, newScale));
+  spx_clampTxY();
+  spx_apply(true);
+}
+
+// ── 宿鹏翔：双击切换 1x ⇄ 2x ── //
+function spx_toggleDoubleTap(ax, ay) {
+  if (spx_scale > 1.1) spx_reset();
+  else spx_scaleAt(2, ax, ay);
+}
+
+// ── 宿鹏翔：工具 —— 两点距离 & 中点 ── //
+function spx_dist(a, b) { return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+function spx_mid(a, b) {
+  return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+}
+// 相对 track 的坐标（track 与 viewer 同尺寸同位置，直接取 clientX - rect）
+function spx_rel(clientX, clientY) {
+  const r = SPX_TRACK.getBoundingClientRect();
+  return { x: clientX - r.left, y: clientY - r.top };
+}
+
+// ── 宿鹏翔：Touch 三件套 ── //
+SPX_VIEWER.addEventListener('touchstart', function(e) {
+  const t0 = e.touches[0];
+  spx_touchStartX = t0.clientX; spx_touchStartY = t0.clientY;
+  spx_lastTapTime = 0;
+  spx_mode = null;
+
+  if (e.touches.length === 2) {
+    // ── 双指：进入 pinch 模式 ──
+    spx_mode = 'pinch';
+    spx_pinchDist0 = spx_dist(e.touches[0], e.touches[1]);
+    spx_pinchScale0 = spx_scale;
+    const m = spx_mid(e.touches[0], e.touches[1]);
+    const rel = spx_rel(m.x, m.y);
+    spx_pinchCx0 = rel.x; spx_pinchCy0 = rel.y;
+    spx_pinchTx0 = spx_tx; spx_pinchTy0 = spx_ty;
+    SPX_TRACK.classList.remove('spx_animating');
+  } else if (e.touches.length === 1) {
+    // ── 单指：准备 pan 或等待 touch_end 判定双击 ──
+    spx_mode = 'pending';
+    if (spx_scale > 1) {
+      spx_mode = 'pan';
+      SPX_TRACK.classList.remove('spx_animating');
+      const rel = spx_rel(t0.clientX, t0.clientY);
+      spx_panStartX = rel.x; spx_panStartY = rel.y;
+      spx_panTx0 = spx_tx; spx_panTy0 = spx_ty;
+    }
+  }
+}, {passive: false});
+
+SPX_VIEWER.addEventListener('touchmove', function(e) {
+  e.preventDefault(); // 全局阻止页面滚动
+  if (e.touches.length === 1 && spx_mode === 'pan') {
+    // ── 放大后单指拖动 ──
+    const t = e.touches[0];
+    const rel = spx_rel(t.clientX, t.clientY);
+    SPX_TRACK.classList.add('spx_dragging');
+    spx_tx = spx_panTx0 + (rel.x - spx_panStartX);
+    spx_ty = spx_panTy0 + (rel.y - spx_panStartY);
+    spx_clampTxY();
+    spx_apply(false);
+  } else if (e.touches.length === 2 && spx_mode === 'pinch') {
+    // ── 双指缩放 ──
+    const d = spx_dist(e.touches[0], e.touches[1]);
+    const newScale = spx_pinchScale0 * (d / spx_pinchDist0);
+    // 以初始中点为锚，保持初始中点下的图片不动
+    const vw = SPX_VIEWER.offsetWidth, vh = SPX_VIEWER.offsetHeight;
+    const cx = vw / 2, cy = vh / 2;
+    const oldContentX = (spx_pinchCx0 - cx - spx_pinchTx0) / spx_pinchScale0;
+    const oldContentY = (spx_pinchCy0 - cy - spx_pinchTy0) / spx_pinchScale0;
+    spx_scale = Math.max(SPX_MIN, Math.min(SPX_MAX, newScale));
+    spx_tx = spx_pinchCx0 - cx - oldContentX * spx_scale;
+    spx_ty = spx_pinchCy0 - cy - oldContentY * spx_scale;
+    spx_clampTxY();
+    spx_apply(false);
+  }
+}, {passive: false});
+
+SPX_VIEWER.addEventListener('touchend', function(e) {
+  SPX_TRACK.classList.remove('spx_dragging');
+
+  // ── 缩回 1x 自动居中 ──
+  if (spx_mode === 'pinch' && spx_scale <= 1.02) {
+    spx_reset();
+  }
+
+  // ── 双击判定（touchstart 到 touchend 间隔 + 位移） ──
+  if (e.touches.length === 0) {
+    const now = Date.now();
+    const dt = now - spx_lastTapTime;
+    const lastX = spx_lastTapX, lastY = spx_lastTapY;
+    const dx = spx_touchStartX - lastX, dy = spx_touchStartY - lastY;
+    const distOK = Math.hypot(dx, dy) < 25;
+    if (dt < 300 && distOK && spx_lastTapTime) {
+      // 双击
+      const t0 = { clientX: spx_touchStartX, clientY: spx_touchStartY };
+      const rel = spx_rel(t0.clientX, t0.clientY);
+      spx_toggleDoubleTap(rel.x, rel.y);
+      spx_lastTapTime = 0;
+    } else {
+      spx_lastTapTime = now; spx_lastTapX = spx_touchStartX; spx_lastTapY = spx_touchStartY;
+    }
+  }
+  spx_mode = null;
+});
+
+// ── 宿鹏翔：底部按钮 ── //
+document.querySelectorAll('.spx_ctrls button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const target = parseFloat(btn.dataset.s);
+    if (target <= 1) spx_reset();
+    else spx_scaleAt(target, SPX_VIEWER.offsetWidth / 2, SPX_VIEWER.offsetHeight / 2);
+  });
+});
+
+// ── 宿鹏翔：键盘滚轮（桌面端验收辅助） ── //
+SPX_VIEWER.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  const newScale = spx_scale * factor;
+  const cx = SPX_VIEWER.offsetWidth / 2, cy = SPX_VIEWER.offsetHeight / 2;
+  spx_scaleAt(newScale, cx, cy);
+  if (spx_scale <= 1.02) spx_reset();
+}, {passive: false});
+
+// ── 宿鹏翔：初始渲染 ── //
+window.addEventListener('load', function(){ spx_apply(false); });
+</script>
+</body>
+</html>

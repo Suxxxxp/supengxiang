@@ -1,0 +1,131 @@
+<!--
+  作者：宿鹏翔
+  建立时间：2026-11-13
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：上图下文卡片列表页（数据来自本地 Express 服务器）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>诗词卡片 · 宿鹏翔</title>
+	<style>
+		/* 宿鹏翔：全站基础样式 */
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+			background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+			min-height: 100vh;
+			color: #2c3e50;
+			padding: 40px 20px;
+		}
+		.spx_page { max-width: 1200px; margin: 0 auto; }
+		/* 宿鹏翔：页面标题 */
+		.spx_header { text-align: center; margin-bottom: 40px; }
+		.spx_header h1 { font-size: 36px; color: #1a252f; margin-bottom: 8px; letter-spacing: 2px; }
+		.spx_header p { color: #7f8c8d; font-size: 14px; }
+		/* 宿鹏翔：卡片网格 */
+		.spx_grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+			gap: 28px;
+		}
+		/* 宿鹏翔：上图下文卡片本体 */
+		.spx_card {
+			background: #fff;
+			border-radius: 14px;
+			overflow: hidden;
+			box-shadow: 0 6px 20px rgba(0,0,0,.1);
+			transition: transform .25s ease, box-shadow .25s ease;
+		}
+		.spx_card:hover { transform: translateY(-6px); box-shadow: 0 14px 34px rgba(0,0,0,.18); }
+		.spx_card_img {
+			width: 100%;
+			height: 200px;
+			object-fit: cover;
+			display: block;
+			background: #ecf0f1;
+		}
+		.spx_card_body { padding: 18px 20px 22px; }
+		.spx_card_title {
+			font-size: 18px;
+			font-weight: 700;
+			color: #1a252f;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			border-bottom: 1px dashed #e0e6ed;
+		}
+		.spx_card_content {
+			font-size: 14.5px;
+			color: #555;
+			line-height: 1.8;
+		}
+		/* 宿鹏翔：加载态 */
+		.spx_loading {
+			text-align: center;
+			padding: 60px 20px;
+			color: #7f8c8d;
+			font-size: 15px;
+		}
+		.spx_err {
+			text-align: center;
+			padding: 40px 20px;
+			color: #e74c3c;
+			font-size: 14px;
+		}
+	</style>
+</head>
+<body>
+	<!-- 宿鹏翔：页面主体 -->
+	<div class="spx_page">
+		<header class="spx_header">
+			<h1>古 诗 词 选</h1>
+			<p>宿鹏翔 · 上图下文卡片 · 数据来自本地 Express 服务器 :3004</p>
+		</header>
+		<main id="spx_main">
+			<div class="spx_loading">正在从 http://localhost:3004/api/poems 加载数据…</div>
+		</main>
+	</div>
+
+	<script>
+		// 宿鹏翔：API 地址，与 server.js 端口一致
+		const SPX_API = 'http://localhost:3004/api/poems';
+		// 宿鹏翔：缓存获取到的诗词数据
+		let spx_poems = [];
+
+		// 宿鹏翔：从 Express 服务器拉取诗词列表
+		async function spx_fetchPoems() {
+			try {
+				const resp = await fetch(SPX_API);
+				if (!resp.ok) throw new Error('HTTP ' + resp.status);
+				spx_poems = await resp.json();
+				spx_render();
+			} catch (e) {
+				document.getElementById('spx_main').innerHTML =
+					'<div class="spx_err">数据加载失败，请先在 db/ 目录执行 <code>node server.js</code> 启动服务器（端口 3004）<br>错误：' + e.message + '</div>';
+			}
+		}
+
+		// 宿鹏翔：将诗词数据渲染为上图下文卡片网格
+		function spx_render() {
+			const main = document.getElementById('spx_main');
+			if (!spx_poems.length) { main.innerHTML = '<div class="spx_loading">暂无数据</div>'; return; }
+			main.innerHTML = '<div class="spx_grid">' + spx_poems.map(spx_poemCard).join('') + '</div>';
+		}
+
+		// 宿鹏翔：单条诗词卡片的 HTML 模板
+		function spx_poemCard(p) {
+			return '<article class="spx_card">'
+				+ '<img class="spx_card_img" src="' + p.pic + '" alt="' + p.title + '" loading="lazy">'
+				+ '<div class="spx_card_body">'
+				+ '<h3 class="spx_card_title">' + p.title + '</h3>'
+				+ '<p class="spx_card_content">' + p.content + '</p>'
+				+ '</div></article>';
+		}
+
+		// 宿鹏翔：DOM 就绪后立即拉数据
+		spx_fetchPoems();
+	</script>
+</body>
+</html>

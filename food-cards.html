@@ -1,0 +1,370 @@
+<!--
+  作者：宿鹏翔
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：中华美食卡片 · 左右滑动切换（原生 touch 实现，0.3s 过渡）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>中华美食卡片 · 宿鹏翔</title>
+<style>
+  /* 宿鹏翔：基础 */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: linear-gradient(160deg, #fff8e1 0%, #ffe0b2 60%, #ffcc80 100%);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
+
+  /* 宿鹏翔：标题 */
+  .spx_title { text-align: center; margin-bottom: 22px; }
+  .spx_title h1 {
+    font-size: 26px; color: #bf360c; letter-spacing: 3px;
+    text-shadow: 0 2px 4px rgba(191,54,12,.15);
+  }
+  .spx_title p { font-size: 12px; color: #d84315; margin-top: 6px; letter-spacing: 1px; }
+
+  /* 宿鹏翔：卡片舞台 */
+  .spx_stage {
+    width: 320px; height: 460px;
+    perspective: 1000px;
+    position: relative;
+    /* 宿鹏翔：水平滑动时屏蔽浏览器默认手势，允许垂直滚动 */
+    touch-action: pan-y;
+  }
+
+  /* 宿鹏翔：卡片容器（transform 整体平移） */
+  .spx_track {
+    position: absolute; inset: 0;
+    display: flex;
+    transition: transform .3s cubic-bezier(.22,.61,.36,1);
+    cursor: grab;
+  }
+  .spx_track.spx_dragging { transition: none; cursor: grabbing; }
+  /* 宿鹏翔：动画播放期间锁定，禁止新的触摸进入（验收 ② 防连滑跳两张） */
+  .spx_track.spx_locked { pointer-events: none; }
+
+  /* 宿鹏翔：单张卡片 */
+  .spx_card { flex: 0 0 100%; height: 100%; padding: 14px; }
+  .spx_card_inner {
+    width: 100%; height: 100%;
+    background: #fff; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 12px 34px rgba(191,54,12,.22), 0 2px 6px rgba(0,0,0,.08);
+    display: flex; flex-direction: column;
+  }
+  .spx_card_img { width: 100%; height: 230px; object-fit: cover; display: block; background: #f4f4f4; }
+  .spx_card_body { flex: 1; padding: 16px 18px; display: flex; flex-direction: column; }
+  .spx_card_tag {
+    display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 999px;
+    background: #ff5722; color: #fff; letter-spacing: 1px; align-self: flex-start; margin-bottom: 8px;
+  }
+  .spx_card_title { font-size: 22px; font-weight: bold; color: #3e2723; margin-bottom: 6px; }
+  .spx_card_region { font-size: 12.5px; color: #8d6e63; margin-bottom: 10px; }
+  .spx_card_desc { font-size: 13.5px; color: #5d4037; line-height: 1.7; flex: 1; }
+  .spx_card_price { font-size: 14px; color: #bf360c; margin-top: 10px; font-weight: bold; }
+
+  /* 宿鹏翔：页码指示 */
+  .spx_dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+  .spx_dot { width: 8px; height: 8px; border-radius: 50%; background: #ffcc80; transition: all .3s; }
+  .spx_dot.spx_active { width: 24px; border-radius: 5px; background: #bf360c; }
+
+  /* 宿鹏翔：左右按钮 */
+  .spx_btns { display: flex; gap: 20px; margin-top: 20px; }
+  .spx_btn {
+    width: 48px; height: 48px; border-radius: 50%; border: none;
+    background: #fff; color: #bf360c; font-size: 20px; cursor: pointer; font-weight: bold;
+    box-shadow: 0 4px 12px rgba(191,54,12,.25); transition: all .2s;
+  }
+  .spx_btn:hover:not(:disabled) { transform: scale(1.08); }
+  .spx_btn:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* 宿鹏翔：Toast 提示 */
+  .spx_toast {
+    position: fixed; top: 40%; left: 50%; transform: translateX(-50%) scale(.7);
+    background: rgba(0,0,0,.78); color: #fff; padding: 10px 22px; border-radius: 999px;
+    font-size: 14px; pointer-events: none; opacity: 0; transition: all .25s; z-index: 999;
+  }
+  .spx_toast.spx_show { opacity: 1; transform: translateX(-50%) scale(1); }
+
+  /* 宿鹏翔：验收说明 */
+  .spx_hint { font-size: 12px; color: #8d6e63; margin-top: 18px; text-align: center; }
+  .spx_checklist {
+    background: #fff; border-radius: 10px; padding: 14px 16px; margin: 18px auto 0;
+    max-width: 400px; box-shadow: 0 2px 10px rgba(0,0,0,.06); text-align: left;
+  }
+  .spx_checklist h3 { font-size: 13.5px; color: #bf360c; margin-bottom: 8px; }
+  .spx_checklist li {
+    font-size: 12.5px; color: #5d4037; line-height: 1.9; list-style: none; padding-left: 18px; position: relative;
+  }
+  .spx_checklist li::before { content: '✅'; position: absolute; left: 0; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="spx_title">
+  <h1>🍜 中 华 美 食 卡 片</h1>
+  <p>左右滑动切换 · 4 道名菜 · 原生 touch 实现</p>
+</div>
+
+<!-- 宿鹏翔：卡片舞台 -->
+<div class="spx_stage" id="spx_stage">
+  <div class="spx_track" id="spx_track">
+    <div class="spx_card"><div class="spx_card_inner">
+      <img class="spx_card_img" src="https://picsum.photos/seed/food1/640/400" alt="宫保鸡丁">
+      <div class="spx_card_body">
+        <span class="spx_card_tag">川菜</span>
+        <div class="spx_card_title">宫保鸡丁</div>
+        <div class="spx_card_region">★ 四川 · 成都</div>
+        <div class="spx_card_desc">鸡丁滑嫩，花生酥脆，甜辣鲜香，川菜经典中的经典，百年老味，下饭神器。</div>
+        <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐⭐</div>
+      </div>
+    </div></div>
+    <div class="spx_card"><div class="spx_card_inner">
+      <img class="spx_card_img" src="https://picsum.photos/seed/food2/640/400" alt="北京烤鸭">
+      <div class="spx_card_body">
+        <span class="spx_card_tag">京菜</span>
+        <div class="spx_card_title">北京烤鸭</div>
+        <div class="spx_card_region">★ 北京</div>
+        <div class="spx_card_desc">果木炭火烤制，皮脆肉嫩，油脂鲜美。片皮蘸甜面酱配薄饼黄瓜丝，滋味无穷。</div>
+        <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐⭐</div>
+      </div>
+    </div></div>
+    <div class="spx_card"><div class="spx_card_inner">
+      <img class="spx_card_img" src="https://picsum.photos/seed/food3/640/400" alt="东坡肉">
+      <div class="spx_card_body">
+        <span class="spx_card_tag">浙菜</span>
+        <div class="spx_card_title">东坡肉</div>
+        <div class="spx_card_region">★ 浙江 · 杭州</div>
+        <div class="spx_card_desc">慢炖四小时，冰糖上色，肥而不腻，入口即化。苏东坡手笔，流传千年的美味。</div>
+        <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐☆</div>
+      </div>
+    </div></div>
+    <div class="spx_card"><div class="spx_card_inner">
+      <img class="spx_card_img" src="https://picsum.photos/seed/food4/640/400" alt="糖醋排骨">
+      <div class="spx_card_body">
+        <span class="spx_card_tag">鲁菜</span>
+        <div class="spx_card_title">糖醋排骨</div>
+        <div class="spx_card_region">★ 山东 · 济南</div>
+        <div class="spx_card_desc">外酥里嫩，酸甜开胃，金黄油亮的排骨裹满酱汁，一口下去停不下来。</div>
+        <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐☆</div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- 宿鹏翔：页码点 -->
+<div class="spx_dots" id="spx_dots">
+  <div class="spx_dot spx_active"></div>
+  <div class="spx_dot"></div>
+  <div class="spx_dot"></div>
+  <div class="spx_dot"></div>
+</div>
+
+<!-- 宿鹏翔：左右按钮（桌面也能点） -->
+<div class="spx_btns">
+  <button class="spx_btn" id="spx_btnPrev">‹</button>
+  <button class="spx_btn" id="spx_btnNext">›</button>
+</div>
+
+<div class="spx_hint">👉 左右滑动卡片 · 或点两侧箭头 · 验收清单在下方</div>
+
+<!-- 宿鹏翔：验收清单 -->
+<div class="spx_checklist">
+  <h3>🎯 验收清单（3 条必过）</h3>
+  <ul>
+    <li><b>短距离误触不切换</b>：轻轻碰一下（位移 &lt; 40px）松手 → 不跳卡，回弹到原位</li>
+    <li><b>快速连滑不跳两张</b>：0.3s 过渡动画播放期间，新的触摸会被"锁住" → 连滑两次只跳一次</li>
+    <li><b>页面不跟着上下滚动</b>：手指在卡片上 <b>左右滑</b> → 切换卡片；<b>上下滑</b> → 页面正常滚动</li>
+  </ul>
+</div>
+
+<!-- 宿鹏翔：Toast 提示 -->
+<div class="spx_toast" id="spx_toast">已经是第一张啦 🐾</div>
+
+<script>
+// ── 宿鹏翔：状态变量 ── //
+const SPX_STAGE = document.getElementById('spx_stage');
+const SPX_TRACK = document.getElementById('spx_track');
+const SPX_DOTS  = document.querySelectorAll('#spx_dots .spx_dot');
+const SPX_TOAST = document.getElementById('spx_toast');
+const SPX_BTN_PREV = document.getElementById('spx_btnPrev');
+const SPX_BTN_NEXT = document.getElementById('spx_btnNext');
+
+let spx_index = 0;          // 当前卡片索引
+const spx_total = 4;        // 卡片总数
+const SPX_THRESHOLD = 40;   // 宿鹏翔：切换阈值（px），低于此值判定为误触
+let spx_startX = 0;         // touchstart 的 X
+let spx_startY = 0;         // touchstart 的 Y（用于判横竖）
+let spx_deltaX = 0;         // 当前水平位移
+let spx_isHorizontal = null; // 本次手势是否为水平（null = 尚未判定）
+let spx_locked = false;     // 宿鹏翔：动画锁，防止连滑跳两张
+let spx_stageW = 320;
+let spx_toastTimer = null;
+
+// ── 宿鹏翔：更新舞台宽度 & 对齐 ── //
+function spx_updateStageW() {
+  spx_stageW = SPX_STAGE.offsetWidth;
+  const offset = -spx_index * spx_stageW;
+  SPX_TRACK.style.transition = 'none';
+  SPX_TRACK.style.transform = 'translateX(' + offset + 'px)';
+  void SPX_TRACK.offsetHeight; // 强制 reflow，让 transition 恢复
+  SPX_TRACK.style.transition = '';
+}
+spx_updateStageW();
+window.addEventListener('resize', spx_updateStageW);
+
+// ── 宿鹏翔：跳转到指定卡片，带动画锁 ── //
+function spx_jumpTo(idx, animate) {
+  if (spx_locked) return; // 动画播放期间拒绝新请求
+  spx_index = Math.max(0, Math.min(spx_total - 1, idx));
+  const offset = -spx_index * spx_stageW;
+  SPX_TRACK.classList.toggle('spx_dragging', !animate);
+  SPX_TRACK.style.transform = 'translateX(' + offset + 'px)';
+  SPX_DOTS.forEach(function(d, i){ d.classList.toggle('spx_active', i === spx_index); });
+  SPX_BTN_PREV.disabled = (spx_index === 0);
+  SPX_BTN_NEXT.disabled = (spx_index === spx_total - 1);
+  if (animate) {
+    // 宿鹏翔：验收 ② —— 动画播放期间上锁，transitionend 后解锁
+    spx_locked = true;
+    SPX_TRACK.classList.add('spx_locked');
+    const unlock = function() {
+      spx_locked = false;
+      SPX_TRACK.classList.remove('spx_locked');
+      SPX_TRACK.removeEventListener('transitionend', unlock);
+    };
+    SPX_TRACK.addEventListener('transitionend', unlock);
+  }
+}
+
+// ── 宿鹏翔：Toast ── //
+function spx_toastShow(msg) {
+  SPX_TOAST.textContent = msg;
+  SPX_TOAST.classList.add('spx_show');
+  clearTimeout(spx_toastTimer);
+  spx_toastTimer = setTimeout(function(){ SPX_TOAST.classList.remove('spx_show'); }, 1400);
+}
+
+// ── 宿鹏翔：Touch 三件套（验收 ① 阈值 / ② 动画锁 / ③ 判横竖防页面滚动） ── //
+SPX_TRACK.addEventListener('touchstart', function(e) {
+  if (spx_locked) return;                   // 验收 ②：动画期间不接受新触摸
+  const t = e.touches[0];
+  spx_startX = t.clientX;
+  spx_startY = t.clientY;
+  spx_deltaX = 0;
+  spx_isHorizontal = null;                  // 尚未判定方向
+  SPX_TRACK.classList.add('spx_dragging');
+}, {passive: true});
+
+SPX_TRACK.addEventListener('touchmove', function(e) {
+  if (spx_locked) return;
+  const t = e.touches[0];
+  const dx = t.clientX - spx_startX;
+  const dy = t.clientY - spx_startY;
+  spx_deltaX = dx;
+
+  // 宿鹏翔：验收 ③ —— 首次判定方向，水平则阻止默认（页面不滚），垂直则放行
+  if (spx_isHorizontal === null && Math.abs(dx) + Math.abs(dy) > 10) {
+    spx_isHorizontal = Math.abs(dx) > Math.abs(dy);
+  }
+  if (spx_isHorizontal) {
+    e.preventDefault(); // 阻止页面上下滚动
+  } else {
+    return;            // 垂直手势：不更新 transform，让页面滚
+  }
+
+  // 宿鹏翔：边界阻尼
+  let offset = -spx_index * spx_stageW + dx;
+  if (spx_index === 0 && dx > 0) offset = -spx_index * spx_stageW + dx * 0.35;
+  if (spx_index === spx_total - 1 && dx < 0) offset = -spx_index * spx_stageW + dx * 0.35;
+  SPX_TRACK.style.transform = 'translateX(' + offset + 'px)';
+}, {passive: false});
+
+SPX_TRACK.addEventListener('touchend', function() {
+  if (spx_locked) return;
+  SPX_TRACK.classList.remove('spx_dragging');
+  if (spx_isHorizontal) {
+    // 宿鹏翔：验收 ① —— 阈值判定（位移 >= 40px 才切换）
+    if (spx_deltaX > SPX_THRESHOLD) {
+      if (spx_index === 0) { spx_jumpTo(0, true); spx_toastShow('已经是第一张啦 🐾'); }
+      else spx_jumpTo(spx_index - 1, true);
+    } else if (spx_deltaX < -SPX_THRESHOLD) {
+      if (spx_index === spx_total - 1) { spx_jumpTo(spx_total - 1, true); spx_toastShow('已经是最后一张啦 🐾'); }
+      else spx_jumpTo(spx_index + 1, true);
+    } else {
+      spx_jumpTo(spx_index, true); // 误触：回弹原位
+    }
+  }
+  spx_deltaX = 0;
+  spx_isHorizontal = null;
+});
+
+// ── 宿鹏翔：桌面鼠标模拟（方便验收测试） ── //
+let spx_mouseDown = false, spx_mouseH = null;
+SPX_TRACK.addEventListener('mousedown', function(e) {
+  if (spx_locked) return;
+  spx_mouseDown = true;
+  spx_startX = e.clientX;
+  spx_startY = e.clientY;
+  spx_deltaX = 0;
+  spx_mouseH = null;
+  SPX_TRACK.classList.add('spx_dragging');
+});
+window.addEventListener('mousemove', function(e) {
+  if (!spx_mouseDown || spx_locked) return;
+  const dx = e.clientX - spx_startX;
+  const dy = e.clientY - spx_startY;
+  spx_deltaX = dx;
+  if (spx_mouseH === null && Math.abs(dx) + Math.abs(dy) > 10) {
+    spx_mouseH = Math.abs(dx) > Math.abs(dy);
+  }
+  if (!spx_mouseH) return;
+  let offset = -spx_index * spx_stageW + dx;
+  if (spx_index === 0 && dx > 0) offset = -spx_index * spx_stageW + dx * 0.35;
+  if (spx_index === spx_total - 1 && dx < 0) offset = -spx_index * spx_stageW + dx * 0.35;
+  SPX_TRACK.style.transform = 'translateX(' + offset + 'px)';
+});
+window.addEventListener('mouseup', function() {
+  if (!spx_mouseDown) return;
+  spx_mouseDown = false;
+  SPX_TRACK.classList.remove('spx_dragging');
+  if (spx_mouseH) {
+    if (spx_deltaX > SPX_THRESHOLD) {
+      if (spx_index === 0) { spx_jumpTo(0, true); spx_toastShow('已经是第一张啦 🐾'); }
+      else spx_jumpTo(spx_index - 1, true);
+    } else if (spx_deltaX < -SPX_THRESHOLD) {
+      if (spx_index === spx_total - 1) { spx_jumpTo(spx_total - 1, true); spx_toastShow('已经是最后一张啦 🐾'); }
+      else spx_jumpTo(spx_index + 1, true);
+    } else {
+      spx_jumpTo(spx_index, true);
+    }
+  }
+  spx_deltaX = 0;
+  spx_mouseH = null;
+});
+
+// ── 宿鹏翔：左右按钮（也受动画锁保护） ── //
+SPX_BTN_PREV.addEventListener('click', function() {
+  if (spx_locked) return;
+  if (spx_index === 0) { spx_toastShow('已经是第一张啦 🐾'); return; }
+  spx_jumpTo(spx_index - 1, true);
+});
+SPX_BTN_NEXT.addEventListener('click', function() {
+  if (spx_locked) return;
+  if (spx_index === spx_total - 1) { spx_toastShow('已经是最后一张啦 🐾'); return; }
+  spx_jumpTo(spx_index + 1, true);
+});
+
+// ── 宿鹏翔：键盘 ← → ── //
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft') SPX_BTN_PREV.click();
+  else if (e.key === 'ArrowRight') SPX_BTN_NEXT.click();
+});
+</script>
+</body>
+</html>
