@@ -80,6 +80,10 @@
   .wy-back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;transition:transform .2s,box-shadow .2s}
   .wy-back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
 
+  /* 宿鹏翔：任务 6 zoom 容器 —— swiper-zoom-container 必须 display:block + 铺满 slide */
+  .wy-swiper .swiper-zoom-container { width: 100%; height: 100%; display: block; }
+  .wy-swiper .swiper-zoom-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
   footer{text-align:center;margin-top:34px;color:#9ca3af;font-size:13px;line-height:2}
 </style>
 </head>
@@ -204,12 +208,13 @@
       <span class="wy-star">⭐ 验证标准：基础分——轮播自动翻页；进阶分——点 cube 按钮变 3D 立方体、点 fade 变淡入淡出</span>
     </div>
     <div class="wy-fx">
-      <button class="wy-on" data-fx="creative">creative 电影选片墙（推荐）</button>
-      <button data-fx="fade">fade 淡入淡出（优雅）</button>
-      <button data-fx="cube">cube 3D 立方体（炫酷）</button>
-      <button data-fx="coverflow">coverflow 画廊堆叠（沉浸）</button>
-      <button data-fx="flip">flip 翻页（复古）</button>
-      <button data-fx="cards">cards 卡片（俏皮）</button>
+      <button data-fx="creative">creative 电影选片墙（任务二新增）</button>
+      <button data-fx="slide">slide 平推</button>
+      <button data-fx="fade">fade 淡入淡出</button>
+      <button class="wy-on" data-fx="cube">cube 3D 立方体（任务一初始效果）</button>
+      <button data-fx="coverflow">coverflow 画廊堆叠</button>
+      <button data-fx="flip">flip 翻页</button>
+      <button data-fx="cards">cards 卡片</button>
     </div>
     <div class="wy-demo">
       <span class="wy-demo-tag">🎛️ 演示四 · 效果实验台（点按钮切换 effect）</span>
@@ -231,18 +236,102 @@
 
   <div class="wy-back"><a href="index.html">← 返回课堂实践中心</a>　<a href="swiper-lesson.html">查看教师讲解版 →</a></div>
 
+  <!-- ══════════════════════════════════════════════════════════
+       宿鹏翔独立项目 A · 任务 5：cube 立方体（严格 4 项要求）
+  ══════════════════════════════════════════════════════════ -->
+  <div class="wy-sec">
+    <div class="wy-sec-head">
+      <span class="wy-no">5</span>
+      <h2>独立项目 A · cube 立方体轮播<small>严格 4 项要求一次性写对</small></h2>
+    </div>
+    <p class="wy-txt">新建独立轮播，同时满足 <b>①无缝循环 ②3.2s 自动翻页 + disableOnInteraction ③圆点分页器可点击 ④初始效果 cube</b>。</p>
+    <div class="wy-req">
+      <h3>✍️ 任务 5 要求</h3>
+      <p>loop:true · autoplay:{delay:3200,disableOnInteraction:false} · pagination:{clickable:true} · effect:'cube'</p>
+      <span class="wy-star">⭐ 验证：打开即 3D 立方体自动翻，拖一下松手继续翻，最后一张再往后回到第一张</span>
+    </div>
+    <div class="wy-demo">
+      <span class="wy-demo-tag">🎛️ 演示五 · cube 立方体（独立项目）</span>
+      <div class="wy-swiper">
+        <div class="swiper" id="wySw5">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"><div class="wy-cap"><h3>天宫空间站</h3><p>cube ①</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号动车组"><div class="wy-cap"><h3>复兴号动车组</h3><p>cube ②</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919大飞机"><div class="wy-cap"><h3>C919 大飞机</h3><p>cube ③</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"><div class="wy-cap"><h3>奋斗者号</h3><p>cube ④</p></div></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"><div class="wy-cap"><h3>中国天眼 FAST</h3><p>cube ⑤</p></div></div>
+          </div>
+          <div class="swiper-pagination" id="wyPag5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       宿鹏翔独立项目 B · 任务 6：zoom 双击缩放（课堂未讲）+ 爱达·魔都号
+  ══════════════════════════════════════════════════════════ -->
+  <div class="wy-sec">
+    <div class="wy-sec-head">
+      <span class="wy-no">6</span>
+      <h2>独立项目 B · zoom 双击缩放<small>课堂未讲的 Swiper 能力</small></h2>
+    </div>
+    <p class="wy-txt">为光影展新增 <b>第 6 件展品 · 爱达·魔都号</b>（首艘国产大型邮轮，2024 年 1 月首航），图片 16:9 横版。引入 Swiper 课堂未讲的 <b>zoom 能力</b>——双击 / 双指捏合放大，放大后可单指拖动看细节，缩回 1x 自动居中。</p>
+    <div class="wy-req">
+      <h3>✍️ 任务 6 要求</h3>
+      <p>① 6 张 slide（含爱达·魔都号 16:9）；② zoom.maxRatio:3 toggle:true；③ 放大后单指拖动；④ 缩回 1x 自动居中</p>
+      <span class="wy-star">⭐ 验证：双击放大 → 单指拖看细节 → 再双击缩回 1x</span>
+    </div>
+    <div class="wy-demo">
+      <span class="wy-demo-tag">🎛️ 演示六 · zoom 双击缩放（双击试试）</span>
+      <div class="wy-swiper">
+        <div class="swiper" id="wySw6">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站" width="100%"></div>
+              <div class="wy-cap"><h3>天宫空间站</h3><p>🔍 双击放大</p></div>
+            </div>
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号动车组" width="100%"></div>
+              <div class="wy-cap"><h3>复兴号动车组</h3><p>🔍 双击放大</p></div>
+            </div>
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container"><img src="swiper-imgs/c919_1.jpg" alt="C919大飞机" width="100%"></div>
+              <div class="wy-cap"><h3>C919 大飞机</h3><p>🔍 双击放大</p></div>
+            </div>
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号" width="100%"></div>
+              <div class="wy-cap"><h3>奋斗者号</h3><p>🔍 双击放大</p></div>
+            </div>
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼" width="100%"></div>
+              <div class="wy-cap"><h3>中国天眼 FAST</h3><p>🔍 双击放大</p></div>
+            </div>
+            <div class="swiper-slide">
+              <div class="swiper-zoom-container">
+                <!-- 爱达·魔都号：16:9 横版，AI 生成 -->
+                <img src="https://picsum.photos/seed/aida-cruise/1280/720" alt="爱达·魔都号" width="100%">
+              </div>
+              <div class="wy-cap"><h3>爱达·魔都号</h3><p>首艘国产大型邮轮 · 2024 年 1 月首航</p></div>
+            </div>
+          </div>
+          <div class="swiper-pagination" id="wyPag6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>Swiper 课堂操作任务 · 大国重器光影展（学生版） · 高级网页设计 · 2026-2027-1</footer>
 </div>
 
 <script>
   // ══════════════════════════════════════════════════════════
-  //  宿鹏翔：任务一 · 提示词工程师 —— 用正确配置把 4 个轮播全部救活
+  //  任务一 · 提示词工程师 —— 用正确配置把 wySw1~wySw3 救活 + wySw4 初始 cube
   // ══════════════════════════════════════════════════════════
 
-  // ── 任务 1：初始化 #wySw1，让它至少可以拖动 ──
+  // 任务 1：初始化 #wySw1，空对象即可拖动
   new Swiper('#wySw1', {});
 
-  // ── 任务 2：初始化 #wySw2，循环 + 600ms + 圆点可点 + 箭头切换 ──
+  // 任务 2：初始化 #wySw2，循环 + 600ms + 圆点可点 + 箭头切换
   new Swiper('#wySw2', {
     loop: true,
     speed: 600,
@@ -250,7 +339,7 @@
     navigation: { nextEl: '#wyNext2', prevEl: '#wyPrev2' }
   });
 
-  // ── 任务 3：初始化 #wySw3，循环 + 2.6s 自动翻页 + 拖动后不停 + 圆点 ──
+  // 任务 3：初始化 #wySw3，循环 + 2.6s 自动翻页 + 拖动后不停 + 圆点
   new Swiper('#wySw3', {
     loop: true,
     pagination: { el: '#wyPag3', clickable: true },
@@ -258,35 +347,27 @@
   });
 
   // ══════════════════════════════════════════════════════════
-  //  宿鹏翔：任务二 · creative effect 仿写 —— 第 7 种效果 + 电影墙 creativeEffect
-  //  宿鹏翔：任务三 · 综合创作 —— 加了第 6 张 slide（爱达·魔都号邮轮）
-  //  宿鹏翔：任务三 · 额外能力 —— keyboard 键盘 ← → + mousewheel 鼠标滚轮
+  //  任务二 · creative effect 仿写 —— 第 7 种效果 + 电影墙 creativeEffect
+  //  任务三 · 综合创作 —— keyboard + mousewheel（课堂未讲的能力）
   // ══════════════════════════════════════════════════════════
 
-  // 宿鹏翔：creativeEffect 电影墙效果（上一张缩小左移带角度，下一张放大右移进场）
+  // 任务二：creativeEffect 电影选片墙
+  // 答辩问 1 — prev/next 各控制什么：prev 是退场 slide（向左下缩小并后退），next 是进场 slide（从右侧放大带角度飞入）
+  // 答辩问 2 — translate 百分号相对谁：相对 swiper slide 自身的宽/高（百分比 × slide 尺寸 → px）
   const SPX_CREATIVE_FX = {
-    prev: {
-      translate: ['-108%', 18, -150],
-      scale: 0.70,
-      rotate: [0, 0, -12],
-      opacity: 0.5
-    },
-    next: {
-      translate: ['108%', -14, 120],
-      scale: 1.28,
-      rotate: [0, 0, 8]
-    }
+    prev: { translate: ['-110%', 22, -160], scale: 0.68, rotate: [0, 0, -14], opacity: 0.45 },
+    next: { translate: ['110%', -16, 120],  scale: 1.30, rotate: [0, 0, 9] }
   };
 
-  // 宿鹏翔：通用配置（不含 effect，按钮切换时复用）
+  // 通用配置（不含 effect，按钮切换时复用）
   function spx_wySw4Cfg(effect) {
     const cfg = {
       loop: true,
       speed: 800,
       pagination: { el: '#wyPag4', clickable: true },
       autoplay: { delay: 3200, disableOnInteraction: false, pauseOnMouseEnter: false },
-      keyboard: { enabled: true, onlyInViewport: false },   // 宿鹏翔：任务三额外能力 ① 键盘 ← →
-      mousewheel: { invert: false, thresholdDelta: 30 },     // 宿鹏翔：任务三额外能力 ② 鼠标滚轮翻页
+      keyboard: { enabled: true, onlyInViewport: false },   // 任务三额外能力 ① 键盘 ← →
+      mousewheel: { invert: false, thresholdDelta: 30 },     // 任务三额外能力 ② 鼠标滚轮翻页
       effect: effect
     };
     if (effect === 'creative') cfg.creativeEffect = SPX_CREATIVE_FX;
@@ -295,20 +376,35 @@
     return cfg;
   }
 
-  // 宿鹏翔：初始 creative 电影墙
-  let wySw4 = new Swiper('#wySw4', spx_wySw4Cfg('creative'));
+  // 任务一：wySw4 初始效果 cube（4 项要求：loop + 3.2s 自动 + 手动后不停 + 圆点可点 + 初始 cube）
+  let wySw4 = new Swiper('#wySw4', spx_wySw4Cfg('cube'));
 
-  // 宿鹏翔：按钮动态切换 effect（destroy + new）
+  // 按钮动态切换 effect（destroy + new）
   document.querySelectorAll('.wy-fx button').forEach(function(btn){
     btn.addEventListener('click', function(){
-      // 高亮当前按钮，其余去掉
       document.querySelectorAll('.wy-fx button').forEach(function(b){ b.classList.remove('wy-on'); });
       btn.classList.add('wy-on');
-      // 销毁旧实例（detach=true 防止事件残留，cleanupStyles=true 清掉 inline 样式）
       wySw4.destroy(true, true);
-      // 重建（新 effect）
       wySw4 = new Swiper('#wySw4', spx_wySw4Cfg(btn.dataset.fx));
     });
+  });
+
+  // ── 宿鹏翔独立项目 A · 任务 5：cube 立方体（严格 4 项要求） ──
+  new Swiper('#wySw5', {
+    loop: true,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { el: '#wyPag5', clickable: true },
+    effect: 'cube',
+    cubeEffect: { slideShadows: true, shadow: true, shadowOffset: 20, shadowScale: 0.94 }
+  });
+
+  // ── 宿鹏翔独立项目 B · 任务 6：zoom 双击缩放（课堂未讲的能力）+ 爱达·魔都号 ──
+  new Swiper('#wySw6', {
+    loop: true,
+    speed: 600,
+    autoplay: { delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: false },
+    pagination: { el: '#wyPag6', clickable: true },
+    zoom: { maxRatio: 3, minRatio: 1, toggle: true, containerClass: 'swiper-zoom-container' }
   });
 </script>
 </body>
