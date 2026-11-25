@@ -1,0 +1,363 @@
+<!--
+  作者：宿鹏翔
+  学号：24002120405
+  建立时间：2026-11-25
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：移动端"摇一摇"抽菜谱（DeviceMotionEvent + accelerationIncludingGravity + 阈值 18 + 1.5s 冷却 + 降级按钮）
+
+  ═══════════════════════════════════════════════════════════════════
+  答辩准备 · 任务 8：为什么必须做降级方案？
+  ───────────────────────────────────────────────────────────────────
+  摇一摇依赖 DeviceMotionEvent，但它的可用情况很分裂：
+
+  ① 桌面浏览器（Chrome/Edge/Safari）—— 根本没有运动传感器，
+     DeviceMotionEvent 存在但永远不派发事件，addEventListener 之后啥也不会发生；
+
+  ② iOS 13+ Safari —— 安全策略要求必须先调
+     DeviceMotionEvent.requestPermission() 拿到 'granted'，
+     否则事件同样不派发（Chrome for iOS 也一样）；
+
+  ③ 某些 Android 低端机 / 平板 —— 硬件有传感器但 ROM 被阉割，
+     accelerationIncludingGravity 三个分量恒为 null；
+
+  ④ DevTools 设备模式 —— 模拟 iPhone 但没有真实传感器，
+     除非手动触发模拟器的 motion 按钮，否则也不派发。
+
+  所以只监听 devicemotion 等于"有些设备上用户啥也做不了"。
+  降级按钮"点我抽一次"覆盖了上述四种情况，
+  保证任何打开页面的人都能完成"抽菜谱"的主流程。
+  ═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>摇一摇抽菜谱 · 宿鹏翔 24002120405</title>
+<style>
+  /* 宿鹏翔：基础 */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    /* 宿鹏翔：摇晃时背景微晃动画 */
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff9f43);
+    background-size: 300% 300%;
+    animation: spx_bgFlow 8s ease infinite;
+    min-height: 100vh;
+    color: #fff;
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  @keyframes spx_bgFlow {
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+
+  /* 宿鹏翔：标题 */
+  .spx_title { text-align: center; margin-bottom: 30px; }
+  .spx_title h1 { font-size: 26px; letter-spacing: 3px; }
+  .spx_title p { font-size: 13px; opacity: .85; margin-top: 8px; }
+
+  /* 宿鹏翔：提示文字（1.） */
+  .spx_hint {
+    text-align: center;
+    font-size: 16px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.35);
+    padding: 12px 22px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(6px);
+  }
+  .spx_hint b { color: #fff8e1; }
+
+  /* 宿鹏翔：摇一摇图标 */
+  .spx_shake {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    border: 3px solid rgba(255,255,255,.45);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    margin-bottom: 30px;
+    /* 宿鹏翔：待机状态缓慢上下浮动 */
+    animation: spx_float 2.4s ease-in-out infinite;
+  }
+  @keyframes spx_float {
+    0%,100%{ transform: translateY(0) rotate(-2deg); }
+    50%{ transform: translateY(-10px) rotate(2deg); }
+  }
+  /* 宿鹏翔：摇动中的抖动动画（触发时加 spx_shaking 类） */
+  .spx_shake.spx_shaking {
+    animation: spx_jitter .25s ease-in-out 3;
+  }
+  @keyframes spx_jitter {
+    0%{ transform: translate(0,0) rotate(0); }
+    20%{ transform: translate(-6px,2px) rotate(-8deg); }
+    40%{ transform: translate(6px,-2px) rotate(8deg); }
+    60%{ transform: translate(-4px,-1px) rotate(-5deg); }
+    80%{ transform: translate(4px,1px) rotate(5deg); }
+    100%{ transform: translate(0,0) rotate(0); }
+  }
+
+  /* 宿鹏翔：结果卡片（2. 带弹出动画） */
+  .spx_result {
+    width: 100%; max-width: 340px;
+    background: rgba(255,255,255,.95);
+    color: #2c3e50;
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0,0,0,.25);
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity .35s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+    min-height: 130px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .spx_result.spx_show {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .spx_result .spx_tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #ff6b6b;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .spx_result .spx_name {
+    font-size: 24px; font-weight: bold; color: #bf360c;
+    letter-spacing: 2px; margin-bottom: 6px;
+  }
+  .spx_result .spx_region {
+    font-size: 12px; color: #8d6e63; margin-bottom: 10px;
+  }
+  .spx_result .spx_desc {
+    font-size: 13px; color: #5d4037; line-height: 1.7;
+  }
+  .spx_result .spx_empty {
+    color: #bdc3c7; font-size: 14px;
+  }
+
+  /* 宿鹏翔：降级按钮（5. 点我抽一次） */
+  .spx_fallback {
+    margin-top: 24px;
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+  }
+  .spx_fallback button {
+    background: #fff;
+    color: #e74c3c;
+    border: 2px solid #fff;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 12px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .spx_fallback button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  }
+  .spx_fallback button:active { transform: scale(.96); }
+
+  /* 宿鹏翔：状态提示（是否支持传感器） */
+  .spx_status {
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: .8;
+    text-align: center;
+    min-height: 16px;
+  }
+  .spx_status.spx_unsupported {
+    background: rgba(0,0,0,.2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    max-width: 340px;
+    backdrop-filter: blur(4px);
+  }
+</style>
+</head>
+<body>
+
+<div class="spx_title">
+  <h1>🥢 今日菜谱抽签</h1>
+  <p>宿鹏翔 · 24002120405</p>
+</div>
+
+<!-- 宿鹏翔：1. 页面提示 -->
+<div class="spx_hint">📱 <b>摇一摇手机，抽今日菜谱</b></div>
+
+<!-- 宿鹏翔：摇一摇图标 -->
+<div class="spx_shake" id="spx_shake">📱</div>
+
+<!-- 宿鹏翔：2. 结果区（弹出动画） -->
+<div class="spx_result" id="spx_result">
+  <div class="spx_empty">👆 摇一摇试试？<br>不支持摇的话点下面的按钮</div>
+</div>
+
+<!-- 宿鹏翔：5. 降级按钮 + 状态提示 -->
+<div class="spx_fallback">
+  <button id="spx_btnDraw">🎲 点我抽一次</button>
+  <div class="spx_status" id="spx_status"></div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：任务四 · 摇一摇抽菜谱
+  // ══════════════════════════════════════════════════════════
+
+  // 宿鹏翔：4. 菜谱数据（6 道菜，随机抽取）
+  const SPX_DISHES = [
+    { tag: '川菜', name: '宫保鸡丁', region: '四川 · 成都', desc: '鸡丁滑嫩弹牙，花生酥脆喷香，甜辣鲜香交叠。' },
+    { tag: '京菜', name: '北京烤鸭', region: '北京', desc: '果木炭火挂炉，皮脆肉嫩，蘸甜面酱配薄饼。' },
+    { tag: '浙菜', name: '东坡肉',   region: '浙江 · 杭州', desc: '慢炖四小时，冰糖上色，肥而不腻，入口即化。' },
+    { tag: '鲁菜', name: '糖醋排骨', region: '山东 · 济南', desc: '外酥里嫩，酸甜开胃，金黄油亮裹满酱汁。' },
+    { tag: '粤菜', name: '白切鸡',   region: '广东 · 广州', desc: '皮爽肉嫩，原汁原味，蘸姜葱酱一绝。' },
+    { tag: '湘菜', name: '剁椒鱼头', region: '湖南 · 长沙', desc: '剁椒红亮，鱼肉鲜嫩，香辣开胃。' }
+  ];
+
+  // 宿鹏翔：DOM 引用
+  const SPX_SHAKE  = document.getElementById('spx_shake');
+  const SPX_RESULT = document.getElementById('spx_result');
+  const SPX_BTN    = document.getElementById('spx_btnDraw');
+  const SPX_STAT   = document.getElementById('spx_status');
+
+  // 宿鹏翔：状态变量
+  const SPX_THRESHOLD = 18;     // 3. 阈值约 18（合成加速度分量）
+  const SPX_COOLDOWN  = 1500;   // 3. 1.5 秒冷却
+  let spx_lastTrigger = 0;      // 上次触发时间戳
+  let spx_lastX = 0, spx_lastY = 0, spx_lastZ = 0;  // 上次加速度（合成时用）
+
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：主流程 —— 摇一摇触发抽菜谱
+  // ══════════════════════════════════════════════════════════
+  function spx_drawDish() {
+    // 宿鹏翔：摇动图标加抖动动画
+    SPX_SHAKE.classList.add('spx_shaking');
+    setTimeout(function(){ SPX_SHAKE.classList.remove('spx_shaking'); }, 750);
+
+    // 宿鹏翔：4. 随机抽一道菜
+    var dish = SPX_DISHES[Math.floor(Math.random() * SPX_DISHES.length)];
+
+    // 宿鹏翔：渲染结果（先移除 show，等下一帧再加触发弹出动画）
+    SPX_RESULT.classList.remove('spx_show');
+    requestAnimationFrame(function(){
+      SPX_RESULT.innerHTML =
+        '<span class="spx_tag">' + dish.tag + '</span>' +
+        '<div class="spx_name">' + dish.name + '</div>' +
+        '<div class="spx_region">★ ' + dish.region + '</div>' +
+        '<div class="spx_desc">' + dish.desc + '</div>';
+      SPX_RESULT.classList.add('spx_show');
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：3. 摇动判定（超过阈值 + 冷却窗口）
+  //  accelerationIncludingGravity 含重力，静止时分量 ≈ g ≈ 9.8
+  //  所以阈值 18 能排除轻微手机移动（~10-12），只捕捉真实摇动
+  // ══════════════════════════════════════════════════════════
+  function spx_checkShake(x, y, z) {
+    // 冷却窗口
+    if (Date.now() - spx_lastTrigger < SPX_COOLDOWN) return;
+
+    // 宿鹏翔：用增量 delta 判定（而非绝对 g 值）—— 减去上次加速度
+    var dx = Math.abs(x - spx_lastX);
+    var dy = Math.abs(y - spx_lastY);
+    var dz = Math.abs(z - spx_lastZ);
+    var magnitude = dx + dy + dz;
+    spx_lastX = x; spx_lastY = y; spx_lastZ = z;
+
+    if (magnitude > SPX_THRESHOLD) {
+      spx_lastTrigger = Date.now();
+      spx_drawDish();
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：2. 监听 devicemotion
+  // ══════════════════════════════════════════════════════════
+  function spx_startMotion() {
+    if (window.DeviceMotionEvent === undefined) {
+      // 宿鹏翔：桌面浏览器根本没有这个事件对象
+      spx_statShow('当前设备不支持摇一摇，请用手机打开', true);
+      return;
+    }
+
+    // 宿鹏翔：安全上下文检查（答辩要点补充）
+    // Android Chrome 在 HTTP 页面上同样不派发 devicemotion，
+    // 必须 HTTPS 或 localhost 才会通过 isSecureContext === true
+    if (!window.isSecureContext) {
+      spx_statShow('⚠️ 当前非 HTTPS，运动传感器可能被浏览器拦截', true);
+    }
+
+    function spx_listener(e) {
+      var a = e.accelerationIncludingGravity;
+      // 宿鹏翔：某些低端机 a 可能有一个或多个分量为 null
+      if (!a || a.x == null || a.y == null || a.z == null) {
+        spx_statShow('当前设备不支持摇一摇，请用手机打开', true);
+        window.removeEventListener('devicemotion', spx_listener);
+        return;
+      }
+      spx_checkShake(a.x, a.y, a.z);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  iOS 13+ Safari：必须先请求权限
+    //  ══════════════════════════════════════════════════════════
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission()
+        .then(function(permission) {
+          if (permission === 'granted') {
+            window.addEventListener('devicemotion', spx_listener);
+            spx_statShow('✅ 传感器已就绪，开始摇吧！', false);
+          } else {
+            spx_statShow('未授权运动传感器，请在设置里允许', true);
+          }
+        })
+        .catch(function() {
+          // 权限弹窗被拒或不支持 —— 静默降级
+          spx_statShow('摇一摇需要先点一下页面（iOS 权限）', true);
+        });
+    } else {
+      // Android / Chrome 等：直接监听
+      window.addEventListener('devicemotion', spx_listener);
+      spx_statShow('✅ 传感器已就绪，开始摇吧！', false);
+    }
+  }
+
+  // 宿鹏翔：状态提示
+  function spx_statShow(text, isError) {
+    SPX_STAT.textContent = text;
+    SPX_STAT.classList.toggle('spx_unsupported', !!isError);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：5. 降级按钮
+  // ══════════════════════════════════════════════════════════
+  SPX_BTN.addEventListener('click', function(){
+    if (Date.now() - spx_lastTrigger < SPX_COOLDOWN) return;
+    spx_lastTrigger = Date.now();
+    spx_drawDish();
+  });
+
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：启动 —— 尝试监听 devicemotion
+  //  iOS 要求必须用户交互（点击）之后才能 requestPermission，
+  //  所以延迟到页面首次点击再启动
+  // ══════════════════════════════════════════════════════════
+  spx_startMotion();
+
+  // 额外：iOS Safari 需要用户先点一下页面才能请求权限
+  document.addEventListener('touchend', function spx_firstTap(){
+    spx_startMotion();
+    document.removeEventListener('touchend', spx_firstTap);
+  }, { once: true });
+</script>
+</body>
+</html>

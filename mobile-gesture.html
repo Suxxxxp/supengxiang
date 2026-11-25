@@ -1,0 +1,283 @@
+<!--
+  作者：宿鹏翔
+  学号：24002120405
+  建立时间：2026-11-25
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：移动端手势切换 —— 中华美食卡片 4 张（touchstart/touchend + 40px 阈值 + 300ms 冷却）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!-- 宿鹏翔：移动端视口，禁止用户缩放，页面不允许超出屏幕 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>中华美食卡片 · 宿鹏翔 24002120405</title>
+<style>
+  /* 宿鹏翔：重置 & 基础 */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    padding: 16px;
+    /* 宿鹏翔：纵向滚动允许，供 touch-action: pan-y 配套 */
+    min-height: 150vh;
+  }
+
+  /* 宿鹏翔：标题 */
+  .spx_title { text-align: center; margin: 20px 0 24px; }
+  .spx_title h1 { font-size: 22px; color: #bf360c; letter-spacing: 2px; }
+  .spx_title p { font-size: 12px; color: #d84315; margin-top: 6px; }
+
+  /* 宿鹏翔：卡片舞台 —— touch-action: pan-y 保证纵向还能滚动页面 */
+  .spx_stage {
+    width: 320px;
+    height: 460px;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 12px 32px rgba(0,0,0,.15);
+    /* 宿鹏翔：4. touch-action 设为 pan-y，浏览器只拦截水平手势，垂直方向仍可滚页面 */
+    touch-action: pan-y;
+  }
+
+  /* 宿鹏翔：卡片容器 —— transform 平移，3. 0.3s 过渡动画 */
+  .spx_track {
+    display: flex;
+    height: 100%;
+    /* 宿鹏翔：0.3s 过渡 */
+    transition: transform .3s cubic-bezier(.22,.61,.36,1);
+  }
+
+  /* 宿鹏翔：单张卡片（每张宽度 = 舞台宽度，flex-shrink: 0 防止被压缩） */
+  .spx_card {
+    flex: 0 0 320px;
+    height: 100%;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    /* 宿鹏翔：1. 每张卡片自带渐变色背景 */
+    color: #fff;
+  }
+  /* 宿鹏翔：4 道菜不同的渐变色 */
+  .spx_card_1 { background: linear-gradient(135deg,#e74c3c,#c0392b); }   /* 宫保鸡丁 —— 红 */
+  .spx_card_2 { background: linear-gradient(135deg,#d35400,#e67e22); }   /* 北京烤鸭 —— 橙 */
+  .spx_card_3 { background: linear-gradient(135deg,#27ae60,#16a085); }   /* 东坡肉 —— 绿 */
+  .spx_card_4 { background: linear-gradient(135deg,#f39c12,#e67e22); }   /* 糖醋排骨 —— 金 */
+
+  /* 宿鹏翔：卡片内部排版 */
+  .spx_card_tag {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(255,255,255,.35);
+    margin-bottom: 12px;
+  }
+  .spx_card_title {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 6px rgba(0,0,0,.25);
+    margin-bottom: 10px;
+  }
+  .spx_card_region {
+    font-size: 13px;
+    opacity: .9;
+    margin-bottom: 18px;
+  }
+  .spx_card_desc {
+    font-size: 14px;
+    line-height: 1.8;
+    opacity: .95;
+    flex: 1;
+  }
+  .spx_card_price {
+    font-size: 15px;
+    opacity: .95;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  /* 宿鹏翔：底部页码 */
+  .spx_page {
+    text-align: center;
+    font-size: 13px;
+    color: #5d4037;
+    margin-top: 14px;
+    letter-spacing: 2px;
+  }
+  .spx_page b { color: #bf360c; font-size: 15px; }
+
+  /* 宿鹏翔：Toast 边界提示（3. 边界提示） */
+  .spx_toast {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%) scale(.8);
+    background: rgba(0,0,0,.78);
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 999;
+  }
+  .spx_toast.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+
+  /* 宿鹏翔：操作提示（页面最下方） */
+  .spx_hint {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 12px;
+    color: #8d6e63;
+    line-height: 2;
+  }
+  .spx_hint b { color: #bf360c; }
+</style>
+</head>
+<body>
+
+<div class="spx_title">
+  <h1>🍜 中华美食卡片</h1>
+  <p>宿鹏翔 · 24002120405 · 左滑下一张 / 右滑上一张</p>
+</div>
+
+<!-- 宿鹏翔：卡片舞台 -->
+<div class="spx_stage" id="spx_stage">
+  <div class="spx_track" id="spx_track">
+    <!-- 宿鹏翔：菜 1 · 宫保鸡丁 -->
+    <div class="spx_card spx_card_1">
+      <span class="spx_card_tag">川菜</span>
+      <div class="spx_card_title">宫保鸡丁</div>
+      <div class="spx_card_region">★ 四川 · 成都</div>
+      <div class="spx_card_desc">鸡丁滑嫩弹牙，花生酥脆喷香，甜辣鲜香交叠。百年老味，下饭神器，川菜经典中的经典。</div>
+      <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐⭐</div>
+    </div>
+    <!-- 宿鹏翔：菜 2 · 北京烤鸭 -->
+    <div class="spx_card spx_card_2">
+      <span class="spx_card_tag">京菜</span>
+      <div class="spx_card_title">北京烤鸭</div>
+      <div class="spx_card_region">★ 北京</div>
+      <div class="spx_card_desc">果木炭火挂炉，皮脆肉嫩，油脂鲜美。片皮蘸甜面酱，配薄饼黄瓜丝，老北京讲究。</div>
+      <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐⭐</div>
+    </div>
+    <!-- 宿鹏翔：菜 3 · 东坡肉 -->
+    <div class="spx_card spx_card_3">
+      <span class="spx_card_tag">浙菜</span>
+      <div class="spx_card_title">东坡肉</div>
+      <div class="spx_card_region">★ 浙江 · 杭州</div>
+      <div class="spx_card_desc">慢炖四小时，冰糖上色，肥而不腻，入口即化。苏东坡手笔，流传千年的文人美味。</div>
+      <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐☆</div>
+    </div>
+    <!-- 宿鹏翔：菜 4 · 糖醋排骨 -->
+    <div class="spx_card spx_card_4">
+      <span class="spx_card_tag">鲁菜</span>
+      <div class="spx_card_title">糖醋排骨</div>
+      <div class="spx_card_region">★ 山东 · 济南</div>
+      <div class="spx_card_desc">外酥里嫩，酸甜开胃，金黄油亮的排骨裹满酱汁，一口下去停不下来的家常菜。</div>
+      <div class="spx_card_price">推荐指数 ⭐⭐⭐⭐☆</div>
+    </div>
+  </div>
+</div>
+
+<!-- 宿鹏翔：底部页码（1. 显示第 1/4 张） -->
+<div class="spx_page" id="spx_page">第 <b id="spx_current">1</b>/<b id="spx_total">4</b> 张</div>
+
+<!-- 宿鹏翔：操作提示 -->
+<div class="spx_hint">
+  <b>操作说明：</b><br>
+  在上方卡片区域 <b>左滑</b> → 下一张 · <b>右滑</b> → 上一张<br>
+  阈值 40px · 冷却 300ms · <b>touch-action: pan-y</b> 不拦截页面纵向滚动
+</div>
+
+<!-- 宿鹏翔：Toast -->
+<div class="spx_toast" id="spx_toast"></div>
+
+<script>
+  // ══════════════════════════════════════════════════════════
+  //  宿鹏翔：任务二 · 移动端手势切换（touchstart/touchend + 40px 阈值 + 300ms 冷却）
+  // ══════════════════════════════════════════════════════════
+
+  // 宿鹏翔：DOM 引用
+  const SPX_STAGE  = document.getElementById('spx_stage');
+  const SPX_TRACK  = document.getElementById('spx_track');
+  const SPX_CUR    = document.getElementById('spx_current');
+  const SPX_TOT    = document.getElementById('spx_total');
+  const SPX_TOAST  = document.getElementById('spx_toast');
+
+  // 宿鹏翔：状态变量
+  let spx_index       = 0;   // 当前卡片下标（0 ~ 3）
+  const SPX_TOTAL     = 4;   // 总卡片数
+  const SPX_THRESHOLD = 40;  // 2. 阈值 40px
+  let spx_startX      = 0;   // touchstart 的横向起点
+  let spx_startTime   = 0;   // touchstart 的时间戳（冷却窗口用）
+  let spx_lastMoveAt  = 0;   // 5. 上次切换时间戳，用于 300ms 冷却
+
+  // 宿鹏翔：初始化页码显示
+  SPX_TOT.textContent = SPX_TOTAL;
+  SPX_CUR.textContent = spx_index + 1;
+
+  // ── 宿鹏翔：滑动到指定卡片（带 0.3s 过渡） ──
+  function spx_jump(idx) {
+    spx_index = idx;
+    SPX_TRACK.style.transform = 'translateX(' + (-spx_index * 320) + 'px)';
+    SPX_CUR.textContent = spx_index + 1;
+  }
+
+  // ── 宿鹏翔：Toast 边界提示（3. 边界提示） ──
+  let spx_toastTimer = null;
+  function spx_toastShow(text) {
+    SPX_TOAST.textContent = text;
+    SPX_TOAST.classList.add('show');
+    if (spx_toastTimer) clearTimeout(spx_toastTimer);
+    spx_toastTimer = setTimeout(function(){
+      SPX_TOAST.classList.remove('show');
+    }, 1200);
+  }
+
+  // ── 宿鹏翔：2. touchstart —— 记录起点坐标和时间 ──
+  SPX_STAGE.addEventListener('touchstart', function(e){
+    // 宿鹏翔：changedTouches[0] 取当前触摸点
+    spx_startX    = e.changedTouches[0].clientX;
+    spx_startTime = Date.now();
+  }, { passive: true });
+
+  // ── 宿鹏翔：2. touchend —— 计算位移 + 判定方向 + 切换 ──
+  SPX_STAGE.addEventListener('touchend', function(e){
+    // 宿鹏翔：5. 300ms 冷却窗口 —— 防止快速连滑一次跳两张
+    if (Date.now() - spx_lastMoveAt < 300) return;
+
+    // 宿鹏翔：changedTouches[0].clientX 是抬起时的坐标
+    var spx_endX = e.changedTouches[0].clientX;
+    var spx_dx   = spx_endX - spx_startX;   // 正数 = 右滑，负数 = 左滑
+
+    // 宿鹏翔：位移太小（≤ 阈值）视为误触，不动
+    if (Math.abs(spx_dx) <= SPX_THRESHOLD) return;
+
+    if (spx_dx < 0) {
+      // 宿鹏翔：左滑 → 下一张
+      if (spx_index >= SPX_TOTAL - 1) {
+        spx_toastShow('已经是最后一张啦 🐾');
+      } else {
+        spx_jump(spx_index + 1);
+        spx_lastMoveAt = Date.now();   // 5. 切换成功才写入冷却时间
+      }
+    } else {
+      // 宿鹏翔：右滑 → 上一张
+      if (spx_index <= 0) {
+        spx_toastShow('已经是第一张啦 🐾');
+      } else {
+        spx_jump(spx_index - 1);
+        spx_lastMoveAt = Date.now();   // 5. 切换成功才写入冷却时间
+      }
+    }
+  }, { passive: true });
+</script>
+</body>
+</html>
