@@ -72,11 +72,15 @@
   /* 宿鹏翔：图片 track —— transform 统一承担 translate + scale */
   .spx_img {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform-origin: 0 0;      /* 锚点保持算法的基础：origin 设为 (0,0) */
+    /* 宿鹏翔：去掉 left/top:50%，完全由 transform 控制位置 */
+    /* transform-origin:0 0 是锚点算法的前提，translate 即图片左上角相对舞台左上角的偏移 */
+    transform-origin: 0 0;
     transition: transform .25s cubic-bezier(.22,.61,.36,1);   /* 宿鹏翔：5. 双击过渡 0.25s */
     will-change: transform;
+    /* 宿鹏翔：1x 等比适配容器，最大边缩到刚好容纳，不溢出 */
+    max-width: none;
+    user-select: none;
+    -webkit-user-drag: none;
   }
   /* 宿鹏翔：拖动/缩放中移除 transition，让手势跟手 */
   .spx_viewer.spx_interacting .spx_img { transition: none; }
@@ -132,10 +136,10 @@
 <!-- 宿鹏翔：2. 图片查看器容器 -->
 <div class="spx_viewer" id="spx_viewer">
   <span class="spx_badge" id="spx_badge">1.0x</span>
-  <!-- 宿鹏翔：大图（横向 16:9） -->
+  <!-- 宿鹏翔：大图（16:9，本地图片，避免网络问题） -->
   <img class="spx_img" id="spx_img"
-       src="https://picsum.photos/seed/viewer/1280/720"
-       alt="风景大图">
+       src="./24002120405宿鹏翔/swiper-imgs/tiangong_1.jpg"
+       alt="天宫空间站">
 </div>
 
 <!-- 宿鹏翔：6. 提示文字 -->
@@ -160,8 +164,10 @@
 
   // 宿鹏翔：运行时状态
   let spx_tx = 0, spx_ty = 0;   // 当前平移（图片相对 transform-origin 的位置）
-  let spx_scale = 1;           // 当前缩放倍率（1 ~ 4）
-  const SPX_MIN = 1, SPX_MAX = 4;
+  let spx_scale = 1;           // 当前缩放倍率（baseFit ~ baseFit*4）
+  let spx_fitScale = 1;        // 【新增】1x 的基准：把图片等比缩到刚好能放进容器的倍率
+  let spx_imgW = 0, spx_imgH = 0; // 【新增】图片原始尺寸
+  const SPX_MAX_FACTOR = 4;    // 最大放大 4 倍（相对 fitScale）
 
   // 宿鹏翔：双击判定用（两次 touchend 间隔 < 300ms 且位移 < 20px）
   let spx_lastTapTime = 0;
@@ -173,32 +179,39 @@
   function spx_applyTransform() {
     SPX_IMG.style.transform =
       'translate(' + spx_tx + 'px, ' + spx_ty + 'px) scale(' + spx_scale + ')';
-    SPX_BADGE.textContent = spx_scale.toFixed(1) + 'x';
+    // 宿鹏翔：角标显示相对 fitScale 的倍率（用户看到 1.0x~4.0x，直观）
+    SPX_BADGE.textContent = (spx_scale / spx_fitScale).toFixed(1) + 'x';
   }
 
   // ══════════════════════════════════════════════════════════
   //  宿鹏翔：工具函数 —— 边界夹紧（单指拖动松手时用）
-  //  图片放大后宽/高 = rawW * spx_scale, rawH * spx_scale
-  //  tx 允许范围：-(imgW - stageW) / 2 ~ (imgW - stageW) / 2
-  //  让图片边缘永远不进入舞台可见区
+  //  图片当前渲染尺寸 = 原始 × spx_scale
+  //  tx 允许范围：当图片比舞台大时，让边缘永远不露出舞台
+  //  图片比舞台小时，强制居中（maxX=0 → tx=0 居中）
   // ══════════════════════════════════════════════════════════
   function spx_clampTxY() {
-    // 宿鹏翔：图片原生尺寸未知，直接用 current 计算（浏览器已算出渲染尺寸）
-    var spx_imgW = SPX_IMG.clientWidth * spx_scale;
-    var spx_imgH = SPX_IMG.clientHeight * spx_scale;
-    var spx_maxX = Math.max(0, (spx_imgW - SPX_STAGE_W) / 2);
-    var spx_maxY = Math.max(0, (spx_imgH - SPX_STAGE_H) / 2);
-    spx_tx = Math.max(-spx_maxX, Math.min(spx_maxX, spx_tx));
-    spx_ty = Math.max(-spx_maxY, Math.min(spx_maxY, spx_ty));
+    var spx_renderW = spx_imgW * spx_scale;   // 图片当前渲染宽
+    var spx_renderH = spx_imgH * spx_scale;   // 图片当前渲染高
+    // transform-origin:0 0，translate 是图片左上角的偏移
+    // 图片中心在舞台的：tx + renderW/2, ty + renderH/2
+    // 舞台中心：SPX_STAGE_W/2, SPX_STAGE_H/2
+    // 居中时 tx = SPX_STAGE_W/2 - renderW/2
+    var spx_centerTx = (SPX_STAGE_W - spx_renderW) / 2;
+    var spx_centerTy = (SPX_STAGE_H - spx_renderH) / 2;
+    var spx_maxOffsetX = Math.max(0, spx_imgW * spx_scale - SPX_STAGE_W);
+    var spx_maxOffsetY = Math.max(0, spx_imgH * spx_scale - SPX_STAGE_H);
+    spx_tx = Math.max(spx_centerTx - spx_maxOffsetX / 2, Math.min(spx_centerTx + spx_maxOffsetX / 2, spx_tx));
+    spx_ty = Math.max(spx_centerTy - spx_maxOffsetY / 2, Math.min(spx_centerTy + spx_maxOffsetY / 2, spx_ty));
   }
 
   // ══════════════════════════════════════════════════════════
-  //  宿鹏翔：工具函数 —— 重置（缩回 1x 自动居中）
+  //  宿鹏翔：工具函数 —— 重置（缩回 fitScale × 居中）
   // ══════════════════════════════════════════════════════════
   function spx_reset() {
-    spx_scale = 1;
-    spx_tx = 0;
-    spx_ty = 0;
+    spx_scale = spx_fitScale;
+    // 居中：图片左上角 = (舞台中心 - 图片当前中心)
+    spx_tx = (SPX_STAGE_W - spx_imgW * spx_scale) / 2;
+    spx_ty = (SPX_STAGE_H - spx_imgH * spx_scale) / 2;
     spx_applyTransform();
   }
 
@@ -266,7 +279,8 @@
       var d_now = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
       // 新 scale = 起始 scale × (当前距离 / 起始距离)
       var s1 = spx_pinStartScale * (d_now / spx_pinStartDist);
-      s1 = Math.max(SPX_MIN, Math.min(SPX_MAX, s1));   // clamp 1~4
+      // clamp 到 [fitScale, fitScale * 4]，用户看到的 1x~4x
+      s1 = Math.max(spx_fitScale, Math.min(spx_fitScale * SPX_MAX_FACTOR, s1));
       // ══════════════════════════════════════════════════════════
       //  答辩关键点 —— 锚点保持算法（步骤 ③）
       //  反推新 translate：让锚点 (ix, iy) 仍落在屏幕 (cx, cy)
@@ -299,8 +313,8 @@
     // 宿鹏翔：边界夹紧（只在 scale > 1 时有意义）
     if (spx_scale > 1) spx_clampTxY();
 
-    // 宿鹏翔：缩回 1x 自动居中
-    if (spx_scale <= 1.02) {
+    // 宿鹏翔：缩回 fitScale 自动居中（接近 fitScale 就归零）
+    if (spx_scale <= spx_fitScale * 1.02) {
       spx_reset();
     } else {
       spx_applyTransform();
@@ -318,16 +332,16 @@
       // ══════════════════════════════════════════════════════════
       SPX_VIEWER.classList.add('spx_interacting');  // 先移除跟手 transition，等 apply 完再加回去
 
-      if (spx_scale > 1.02) {
-        // 缩回 1x
+      if (spx_scale > spx_fitScale * 1.02) {
+        // 缩回 fitScale
         spx_reset();
       } else {
-        // 放大到 2x，以双击点 (cx_now, cy_now) 为锚
-        var ix = (cx_now - spx_tx) / spx_scale;   // 当前 scale=1，等价于 ix = cx_now
+        // 放大到 fitScale × 2，以双击点 (cx_now, cy_now) 为锚
+        var ix = (cx_now - spx_tx) / spx_scale;
         var iy = (cy_now - spx_ty) / spx_scale;
-        spx_scale = 2;
-        spx_tx = cx_now - ix * 2;
-        spx_ty = cy_now - iy * 2;
+        spx_scale = spx_fitScale * 2;
+        spx_tx = cx_now - ix * spx_scale;
+        spx_ty = cy_now - iy * spx_scale;
         spx_applyTransform();
         spx_clampTxY();
         spx_applyTransform();
@@ -350,9 +364,21 @@
   });
 
   // ══════════════════════════════════════════════════════════
-  //  宿鹏翔：初始化
+  //  宿鹏翔：初始化 —— 图片加载完再算 fitScale 和居中
+  //  1x 的含义：等比缩放到刚好完整显示在容器里（object-fit:contain 的效果）
   // ══════════════════════════════════════════════════════════
-  spx_reset();
+  SPX_IMG.addEventListener('load', function(){
+    spx_imgW = SPX_IMG.naturalWidth || SPX_IMG.width;
+    spx_imgH = SPX_IMG.naturalHeight || SPX_IMG.height;
+    // fitScale = min(stageW/imgW, stageH/imgH)
+    spx_fitScale = Math.min(SPX_STAGE_W / spx_imgW, SPX_STAGE_H / spx_imgH);
+    // 如果图片比容器小，fitScale < 1，也设成最小 0.5
+    spx_reset();
+  });
+  // 兜底：如果图片已经缓存，load 不会再触发，手动再调一次
+  if (SPX_IMG.complete) {
+    SPX_IMG.dispatchEvent(new Event('load'));
+  }
 </script>
 </body>
 </html>
