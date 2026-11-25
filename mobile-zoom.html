@@ -115,6 +115,35 @@
   }
   .spx_hint b { color: #fff; }
 
+  /* 宿鹏翔：页面底部演示视频区 */
+  .spx_video {
+    max-width: 400px;
+    margin: 26px auto 0;
+    padding: 16px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,209,102,.25);
+    border-radius: 12px;
+  }
+  .spx_video h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffd166;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .spx_video video {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    background: #000;
+  }
+  .spx_video p {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.6;
+  }
+
   /* 宿鹏翔：桌面端额外提示（因为鼠标没有触摸） */
   @media (hover: hover) and (pointer: fine) {
     .spx_hint::before {
@@ -147,6 +176,15 @@
   <b>双指缩放请用手机打开</b><br>
   双指捏合 → 1x~4x 任意倍率 · 双击 → 1x ⇄ 2x · 放大后单指拖动看细节
 </div>
+
+<!-- 宿鹏翔：页面最下方 —— 任务三功能演示视频 -->
+<section class="spx_video">
+  <h2>📹 任务三 · 功能演示</h2>
+  <video src="./mobile-zoom-demo.mp4" controls playsinline webkit-playsinline preload="metadata">
+    您的浏览器不支持 video 标签。
+  </video>
+  <p>演示内容：双指捏合缩放 1x~4x、双击 1x⇄2x、放大后单指拖动查看细节。</p>
+</section>
 
 <script>
   // ══════════════════════════════════════════════════════════

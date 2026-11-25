@@ -181,6 +181,37 @@
     max-width: 340px;
     backdrop-filter: blur(4px);
   }
+
+  /* 宿鹏翔：页面底部演示视频区 */
+  .spx_video {
+    width: 100%; max-width: 340px;
+    margin-top: 28px;
+    padding: 14px;
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 14px;
+    backdrop-filter: blur(6px);
+  }
+  .spx_video h2 {
+    font-size: 14px; font-weight: 600;
+    letter-spacing: 1px;
+    color: #fff8e1;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .spx_video video {
+    display: block;
+    width: 100%;
+    border-radius: 8px;
+    background: #000;
+  }
+  .spx_video p {
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: .8;
+    line-height: 1.6;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -206,6 +237,15 @@
   <button id="spx_btnDraw">🎲 点我抽一次</button>
   <div class="spx_status" id="spx_status"></div>
 </div>
+
+<!-- 宿鹏翔：页面最下方 —— 任务四功能演示视频 -->
+<section class="spx_video">
+  <h2>📹 任务四 · 功能演示</h2>
+  <video src="./mobile-sensor-demo.mp4" controls playsinline webkit-playsinline preload="metadata">
+    您的浏览器不支持 video 标签。
+  </video>
+  <p>演示内容：摇动手机触发抽菜谱、1.5 秒冷却防重复、结果卡片弹出动画。</p>
+</section>
 
 <script>
   // ══════════════════════════════════════════════════════════
