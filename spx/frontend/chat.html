@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宿鹏翔（24002120405）中华美食街在线客服页，通过后端 /api/chat 接口调用大模型，只回答营业时间、招牌菜、配送范围。" />
+  <title>中华美食街在线客服 | 宿鹏翔</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23060a14'%3ES%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/spx_chat.css" />
+</head>
+<body>
+  <main class="spx_wrap">
+    <a class="spx_back" href="index.html">← 返回首页</a>
+
+    <header class="spx_header">
+      <p class="spx_tag">中华美食街 · 在线客服</p>
+      <h1 class="spx_title">中华美食街在线客服</h1>
+      <p class="spx_scope">可咨询：营业时间 / 招牌菜 / 配送范围</p>
+
+      <!-- 当前调用的接口地址 -->
+      <div class="spx_api-bar">
+        <span class="spx_api-label">接口地址</span>
+        <code class="spx_api-value" id="spx_apiPath">POST /api/chat</code>
+        <span class="spx_api-full" id="spx_apiFull"></span>
+      </div>
+
+      <!-- 模型平台切换 -->
+      <div class="spx_provider">
+        <label class="spx_provider-label" for="spx_providerSelect">模型平台</label>
+        <select class="spx_provider-select" id="spx_providerSelect">
+          <option value="siliconflow">硅基流动</option>
+          <option value="qiniu">七牛云</option>
+        </select>
+        <span class="spx_provider-tip">切换平台后继续当前对话</span>
+      </div>
+    </header>
+
+    <section class="spx_chat-box" aria-label="中华美食街在线客服聊天窗口">
+      <div class="spx_chat-list" id="spx_chatList">
+        <div class="spx_msg spx_msg--assistant">
+          您好，我是中华美食街的客服小食～营业时间、招牌菜、配送范围都可以问我，其他问题我会帮您记录留言。
+        </div>
+      </div>
+
+      <form class="spx_chat-form" id="spx_chatForm">
+        <textarea class="spx_chat-input" id="spx_chatInput" rows="2"
+          placeholder="咨询营业时间 / 招牌菜 / 配送范围，Enter 发送" maxlength="2000"></textarea>
+        <button class="spx_chat-send" id="spx_sendBtn" type="submit">发送</button>
+      </form>
+    </section>
+
+    <footer class="spx_footer">宿鹏翔 · 24002120405</footer>
+  </main>
+
+  <script src="js/spx_chat.js"></script>
+</body>
+</html>

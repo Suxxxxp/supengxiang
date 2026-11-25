@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宿鹏翔（24002120405）图像识别页：上传图片，调用硅基流动多模态模型返回图片描述。" />
+  <title>图像识别 | 宿鹏翔</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23fbbf24'/%3E%3Cstop offset='1' stop-color='%23f472b6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23060a14'%3ES%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/spx_vision.css" />
+</head>
+<body>
+  <main class="spx_wrap">
+    <a class="spx_back" href="index.html">← 返回首页</a>
+
+    <header class="spx_header">
+      <p class="spx_tag">多模态 AI</p>
+      <h1 class="spx_title">图像识别</h1>
+      <p class="spx_subtitle">上传一张图片，由多模态大模型识别并返回中文描述：主体、场景、颜色与图中文字。</p>
+
+      <div class="spx_api-bar">
+        <span class="spx_api-label">接口地址</span>
+        <code class="spx_api-value">POST /api/vision</code>
+        <span class="spx_api-full" id="spx_apiFull"></span>
+      </div>
+      <p class="spx_model" id="spx_modelTip">调用模型：Qwen/Qwen3-VL-8B-Instruct</p>
+    </header>
+
+    <section class="spx_card">
+      <div class="spx_drop" id="spx_dropZone" tabindex="0">
+        <p class="spx_drop-main">点击选择或拖拽图片到此处</p>
+        <p class="spx_drop-tip">支持 jpg / jpeg / png / webp / gif，单个文件不超过 8MB</p>
+        <input type="file" id="spx_fileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+      </div>
+
+      <div class="spx_preview" id="spx_previewBox" hidden>
+        <img class="spx_preview-img" id="spx_previewImg" alt="待识别图片预览" />
+        <div class="spx_preview-actions">
+          <span class="spx_preview-meta" id="spx_previewMeta"></span>
+          <button class="spx_btn" id="spx_visionBtn" type="button">开始识别</button>
+        </div>
+      </div>
+
+      <p class="spx_tip" id="spx_tip"></p>
+    </section>
+
+    <section class="spx_card" id="spx_resultCard" hidden>
+      <h2 class="spx_card-title">识别结果</h2>
+      <p class="spx_result" id="spx_resultText"></p>
+      <p class="spx_result-meta" id="spx_resultMeta"></p>
+    </section>
+
+    <footer class="spx_footer">宿鹏翔 · 24002120405</footer>
+  </main>
+
+  <script src="js/spx_vision.js"></script>
+</body>
+</html>

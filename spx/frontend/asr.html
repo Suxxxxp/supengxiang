@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宿鹏翔（24002120405）语音识别页：录制或上传音频，调用七牛云 Qwen-Audio-3.0-ASR-Flash 转写为文字。" />
+  <title>语音识别 | 宿鹏翔</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%2334d399'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23060a14'%3ES%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/spx_asr.css" />
+</head>
+<body>
+  <main class="spx_wrap">
+    <a class="spx_back" href="index.html">← 返回首页</a>
+
+    <header class="spx_header">
+      <p class="spx_tag">语音 AI</p>
+      <h1 class="spx_title">语音识别</h1>
+      <p class="spx_subtitle">录制一段语音或上传音频文件，由七牛云 Qwen-Audio-3.0-ASR-Flash 转写为文字。</p>
+
+      <div class="spx_api-bar">
+        <span class="spx_api-label">接口地址</span>
+        <code class="spx_api-value">POST /api/asr</code>
+        <span class="spx_api-full" id="spx_apiFull"></span>
+      </div>
+      <p class="spx_model-tip" id="spx_modelTip">调用模型：qwen-audio-3.0-asr-flash</p>
+    </header>
+
+    <section class="spx_card">
+      <h2 class="spx_card-title">1. 录音或选择音频</h2>
+
+      <div class="spx_record">
+        <button class="spx_btn spx_btn--record" id="spx_recordBtn" type="button">
+          <span class="spx_record-dot" id="spx_recordDot"></span>
+          <span id="spx_recordText">开始录音</span>
+        </button>
+        <span class="spx_record-timer" id="spx_recordTimer">00:00</span>
+        <span class="spx_record-tip" id="spx_recordTip">首次使用需允许浏览器访问麦克风</span>
+      </div>
+
+      <div class="spx_or"><span>或</span></div>
+
+      <div class="spx_drop" id="spx_dropZone" tabindex="0">
+        <p class="spx_drop-main">点击选择或拖拽音频文件</p>
+        <p class="spx_drop-tip">支持 wav / mp3 / m4a / webm / ogg / amr，单个文件不超过 20MB</p>
+        <input type="file" id="spx_fileInput" accept=".wav,.mp3,.m4a,.webm,.ogg,.amr,audio/*" hidden />
+      </div>
+
+      <div class="spx_audio-box" id="spx_audioBox" hidden>
+        <audio class="spx_audio" id="spx_audio" controls></audio>
+        <p class="spx_audio-meta" id="spx_audioMeta"></p>
+        <button class="spx_btn" id="spx_asrBtn" type="button">开始识别</button>
+      </div>
+
+      <p class="spx_tip" id="spx_tip"></p>
+    </section>
+
+    <section class="spx_card" id="spx_resultCard" hidden>
+      <h2 class="spx_card-title">识别结果</h2>
+      <p class="spx_result" id="spx_resultText"></p>
+      <p class="spx_result-meta" id="spx_resultMeta"></p>
+    </section>
+
+    <footer class="spx_footer">宿鹏翔 · 24002120405</footer>
+  </main>
+
+  <script src="js/spx_asr.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "spx-backend",
+  "version": "1.0.0",
+  "description": "宿鹏翔 24002120405 课程作业后端服务",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "宿鹏翔",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "iconv-lite": "^0.7.3",
+    "multer": "^2.5.0",
+    "mysql2": "^3.24.6",
+    "pdf-parse": "^2.4.5",
+    "word-extractor": "^1.0.4"
+  }
+}

@@ -1,0 +1,353 @@
+/* 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash */
+/* 功能：AI 聊天页样式（对话气泡 + 输入栏 + 移动端适配） */
+
+:root {
+  --spx_bg: #05070f;
+  --spx_text: #e9eefb;
+  --spx_muted: #93a0bd;
+  --spx_cyan: #5eead4;
+  --spx_blue: #60a5fa;
+  --spx_violet: #a78bfa;
+  --spx_line: rgba(255, 255, 255, 0.1);
+  --spx_card: rgba(255, 255, 255, 0.045);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background: var(--spx_bg);
+  color: var(--spx_text);
+}
+
+/* 页面光晕背景 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58vw 58vw at 12% 8%, rgba(96, 165, 250, 0.16), transparent 62%),
+    radial-gradient(52vw 52vw at 88% 92%, rgba(167, 139, 250, 0.16), transparent 62%);
+}
+
+.spx_wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 780px;
+  min-height: 100vh;
+  padding: 40px 20px 28px;
+}
+
+.spx_back {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--spx_muted);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.spx_back:hover {
+  color: var(--spx_cyan);
+}
+
+.spx_tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.1);
+  color: #9ec5ff;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.spx_tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--spx_cyan);
+  box-shadow: 0 0 10px var(--spx_cyan);
+}
+
+.spx_title {
+  margin: 14px 0;
+  font-size: clamp(26px, 5vw, 38px);
+  line-height: 1.25;
+  background: linear-gradient(100deg, #ffffff 10%, #9ec5ff 50%, #c4b5fd 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 可咨询范围提示 */
+.spx_scope {
+  margin-bottom: 14px;
+  color: var(--spx_muted);
+  font-size: 13px;
+}
+
+/* 模型平台切换 */
+.spx_provider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.spx_provider-label {
+  font-size: 13px;
+  color: var(--spx_muted);
+}
+
+.spx_provider-select {
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  background: rgba(96, 165, 250, 0.12);
+  color: var(--spx_text);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+.spx_provider-select:focus {
+  border-color: rgba(94, 234, 212, 0.7);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.14);
+}
+
+.spx_provider-select option {
+  background: #0b1220;
+  color: var(--spx_text);
+}
+
+.spx_provider-tip {
+  font-size: 12px;
+  color: #7f8db0;
+}
+
+/* 接口地址展示条 */
+.spx_api-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--spx_card);
+  border: 1px solid var(--spx_line);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.spx_api-label {
+  font-size: 13px;
+  color: var(--spx_muted);
+}
+
+.spx_api-value {
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  color: var(--spx_cyan);
+  background: rgba(94, 234, 212, 0.1);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+}
+
+.spx_api-full {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  color: #7f8db0;
+  word-break: break-all;
+}
+
+/* 聊天面板 */
+.spx_chat-box {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin-top: 22px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--spx_line);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px -40px rgba(59, 130, 246, 0.6);
+}
+
+.spx_chat-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 320px;
+  max-height: 58vh;
+  padding: 22px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* 对话气泡 */
+.spx_msg {
+  max-width: 82%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: spx_fade 0.25s ease both;
+}
+
+.spx_msg--assistant {
+  align-self: flex-start;
+  color: var(--spx_text);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--spx_line);
+  border-top-left-radius: 4px;
+}
+
+.spx_msg--user {
+  align-self: flex-end;
+  color: #06121f;
+  background: linear-gradient(120deg, var(--spx_cyan), var(--spx_blue));
+  border-top-right-radius: 4px;
+}
+
+.spx_msg--pending {
+  color: var(--spx_muted);
+  font-style: italic;
+}
+
+.spx_msg--error {
+  color: #fc8181;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+/* 输入栏 */
+.spx_chat-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 14px 18px 18px;
+  border-top: 1px solid var(--spx_line);
+  background: rgba(5, 7, 15, 0.35);
+}
+
+.spx_chat-input {
+  flex: 1;
+  min-height: 48px;
+  max-height: 132px;
+  padding: 12px 14px;
+  resize: none;
+  border-radius: 12px;
+  border: 1px solid var(--spx_line);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--spx_text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.spx_chat-input:focus {
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.spx_chat-send {
+  flex-shrink: 0;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #060a14;
+  background: linear-gradient(100deg, var(--spx_cyan), var(--spx_blue));
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.spx_chat-send:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.spx_chat-send:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.spx_footer {
+  margin-top: 20px;
+  color: var(--spx_muted);
+  font-size: 13px;
+}
+
+@keyframes spx_fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 手机端适配 */
+@media (max-width: 640px) {
+  .spx_wrap {
+    padding: 28px 14px 20px;
+  }
+
+  .spx_chat-list {
+    padding: 16px;
+    max-height: 56vh;
+  }
+
+  .spx_msg {
+    max-width: 90%;
+    font-size: 14px;
+  }
+
+  .spx_chat-form {
+    padding: 12px;
+  }
+
+  .spx_chat-send {
+    padding: 12px 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spx_msg {
+    animation: none;
+  }
+
+  .spx_chat-list {
+    scroll-behavior: auto;
+  }
+}

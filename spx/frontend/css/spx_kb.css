@@ -1,0 +1,208 @@
+/* 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash */
+/* 知识库问答页样式 */
+
+:root {
+  --spx_bg: #060a14;
+  --spx_card: rgba(17, 24, 39, 0.72);
+  --spx_line: rgba(148, 163, 184, 0.18);
+  --spx_text: #e8eefc;
+  --spx_muted: #93a0bd;
+  --spx_violet: #a78bfa;
+  --spx_blue: #60a5fa;
+  --spx_green: #34d399;
+  --spx_red: #f87171;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(167, 139, 250, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(96, 165, 250, 0.14), transparent 55%),
+    var(--spx_bg);
+  color: var(--spx_text);
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  padding: 40px 20px 60px;
+}
+
+.spx_wrap { width: min(960px, 100%); margin: 0 auto; }
+
+.spx_back {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: var(--spx_muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+.spx_back:hover { color: var(--spx_violet); }
+
+.spx_header { margin-bottom: 26px; }
+
+.spx_tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  background: rgba(167, 139, 250, 0.12);
+  color: var(--spx_violet);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.spx_title { margin: 14px 0 10px; font-size: 30px; }
+
+.spx_subtitle { color: var(--spx_muted); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+
+.spx_api-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--spx_line);
+  background: rgba(15, 23, 42, 0.6);
+  font-size: 13px;
+}
+.spx_api-label { color: var(--spx_muted); }
+.spx_api-value { color: var(--spx_green); font-family: Consolas, monospace; }
+.spx_api-full { color: #7f8db0; font-size: 12px; word-break: break-all; }
+
+.spx_provider { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.spx_provider-label { font-size: 13px; color: var(--spx_muted); }
+.spx_provider-select {
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  background: rgba(167, 139, 250, 0.12);
+  color: var(--spx_text);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+.spx_provider-select option { background: #0b1220; color: var(--spx_text); }
+
+.spx_card {
+  margin-bottom: 22px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--spx_line);
+  background: var(--spx_card);
+}
+
+.spx_card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.spx_card-title { font-size: 17px; margin-bottom: 14px; }
+.spx_stats { color: var(--spx_muted); font-size: 13px; }
+
+.spx_drop {
+  padding: 30px 18px;
+  border: 1.5px dashed rgba(167, 139, 250, 0.5);
+  border-radius: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.spx_drop:hover,
+.spx_drop--active { border-color: var(--spx_violet); background: rgba(167, 139, 250, 0.08); }
+.spx_drop-main { font-size: 15px; margin-bottom: 8px; }
+.spx_drop-tip { color: var(--spx_muted); font-size: 12px; }
+
+.spx_upload-tip { margin-top: 10px; font-size: 13px; color: var(--spx_muted); }
+.spx_upload-tip--ok { color: var(--spx_green); }
+.spx_upload-tip--error { color: var(--spx_red); }
+
+.spx_file-list { list-style: none; margin-top: 16px; }
+.spx_file-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--spx_line);
+}
+.spx_file-name { font-size: 14px; word-break: break-all; }
+.spx_file-meta { color: var(--spx_muted); font-size: 12px; margin-top: 4px; }
+.spx_file-del {
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--spx_red);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.spx_file-del:hover { background: rgba(248, 113, 113, 0.2); }
+.spx_file-empty { color: var(--spx_muted); font-size: 13px; padding-top: 14px; }
+
+.spx_quick { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.spx_quick-item {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.1);
+  color: #bfdbfe;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.spx_quick-item:hover { background: rgba(96, 165, 250, 0.2); }
+
+.spx_ask-row { display: flex; gap: 10px; }
+.spx_ask-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--spx_line);
+  background: rgba(2, 6, 23, 0.6);
+  color: var(--spx_text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.spx_ask-input:focus { border-color: rgba(167, 139, 250, 0.6); }
+.spx_ask-btn {
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--spx_violet), var(--spx_blue));
+  color: #0b1220;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.spx_ask-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.spx_answer { margin-top: 16px; padding: 16px; border-radius: 14px; background: rgba(2, 6, 23, 0.55); border: 1px solid var(--spx_line); }
+.spx_answer-label { color: var(--spx_violet); font-size: 12px; margin-bottom: 8px; }
+.spx_answer-text { font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+.spx_answer-text--error { color: var(--spx_red); }
+.spx_answer-meta { color: #7f8db0; font-size: 12px; margin-top: 10px; }
+
+.spx_refs { margin-top: 12px; }
+.spx_ref-title { color: var(--spx_muted); font-size: 12px; margin-bottom: 8px; }
+.spx_ref-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  border-left: 3px solid rgba(96, 165, 250, 0.55);
+  background: rgba(96, 165, 250, 0.07);
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.7;
+}
+.spx_ref-head { color: var(--spx_blue); margin-bottom: 4px; }
+
+.spx_footer { text-align: center; color: #64748b; font-size: 12px; margin-top: 30px; }
+
+@media (max-width: 640px) {
+  body { padding: 26px 14px 40px; }
+  .spx_title { font-size: 24px; }
+  .spx_card { padding: 16px; }
+  .spx_ask-row { flex-direction: column; }
+  .spx_ask-btn { width: 100%; }
+}

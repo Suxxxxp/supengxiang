@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<!-- 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash -->
+<!-- 11.25 · LLM 实践测试展示页：汇总在线客服 / 知识库问答(RAG) / 图片识别(VL) / 语音识别(ASR) 四项实测结果与截图 -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宿鹏翔（24002120405）11.25 LLM 实践测试展示：在线客服、知识库问答、图片识别、语音识别四项大模型能力实测记录。" />
+  <title>11.25 · LLM 实践测试展示 | 宿鹏翔</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23060a14'%3ES%3C/text%3E%3C/svg%3E" />
+  <style>
+    /* 宿鹏翔：基础重置与主题变量 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --spx-bg: #060a14;
+      --spx-card: rgba(255,255,255,.04);
+      --spx-line: rgba(255,255,255,.09);
+      --spx-text: #e5eaf3;
+      --spx-dim: #8b96ab;
+      --spx-teal: #5eead4;
+      --spx-violet: #a78bfa;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background:
+        radial-gradient(900px 500px at 85% -5%, rgba(167,139,250,.12), transparent 60%),
+        radial-gradient(900px 500px at 5% 0%, rgba(94,234,212,.10), transparent 60%),
+        var(--spx-bg);
+      color: var(--spx-text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    .spx_wrap { max-width: 1080px; margin: 0 auto; padding: 28px 22px 60px; }
+    .spx_back { color: var(--spx-dim); text-decoration: none; font-size: 13px; }
+    .spx_back:hover { color: var(--spx-teal); }
+
+    /* 宿鹏翔：Hero 区 */
+    .spx_hero { padding: 36px 0 8px; }
+    .spx_hero-tag {
+      display: inline-block; font-size: 12px; letter-spacing: 2px;
+      color: var(--spx-teal); border: 1px solid rgba(94,234,212,.35);
+      background: rgba(94,234,212,.08); padding: 4px 14px; border-radius: 999px;
+    }
+    .spx_hero h1 {
+      margin-top: 16px; font-size: 34px; letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--spx-teal), var(--spx-violet));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .spx_hero-sub { margin-top: 10px; color: var(--spx-dim); font-size: 14px; max-width: 760px; }
+    .spx_hero-meta { margin-top: 14px; font-size: 12px; color: var(--spx-dim); display: flex; gap: 18px; flex-wrap: wrap; }
+    .spx_hero-meta b { color: var(--spx-text); font-weight: 600; }
+
+    /* 宿鹏翔：统计数据条 */
+    .spx_stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0 8px; }
+    .spx_stat {
+      background: var(--spx-card); border: 1px solid var(--spx-line);
+      border-radius: 14px; padding: 18px; text-align: center;
+    }
+    .spx_stat-num {
+      font-size: 30px; font-weight: 700;
+      background: linear-gradient(90deg, var(--spx-teal), var(--spx-violet));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .spx_stat-label { font-size: 12px; color: var(--spx-dim); margin-top: 4px; }
+
+    /* 宿鹏翔：快速导航卡片 */
+    .spx_nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0 40px; }
+    .spx_nav-item {
+      display: block; text-decoration: none; color: var(--spx-text);
+      background: var(--spx-card); border: 1px solid var(--spx-line);
+      border-radius: 14px; padding: 16px; transition: border-color .2s, transform .2s;
+    }
+    .spx_nav-item:hover { border-color: rgba(94,234,212,.5); transform: translateY(-3px); }
+    .spx_nav-no { font-size: 12px; color: var(--spx-violet); font-weight: 700; letter-spacing: 1px; }
+    .spx_nav-name { font-size: 15px; font-weight: 600; margin-top: 4px; }
+    .spx_nav-pass { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--spx-teal); }
+    .spx_nav-pass::before { content: '●'; margin-right: 5px; }
+
+    /* 宿鹏翔：测试详情节 */
+    .spx_case {
+      background: var(--spx-card); border: 1px solid var(--spx-line);
+      border-radius: 18px; padding: 26px; margin-bottom: 30px;
+      scroll-margin-top: 20px;
+    }
+    .spx_case-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .spx_case-no {
+      font-size: 13px; font-weight: 700; color: #060a14;
+      background: linear-gradient(90deg, var(--spx-teal), var(--spx-violet));
+      padding: 2px 10px; border-radius: 6px;
+    }
+    .spx_case-title { font-size: 21px; font-weight: 700; }
+    .spx_case-link { margin-left: auto; font-size: 12px; color: var(--spx-teal); text-decoration: none; white-space: nowrap; }
+    .spx_case-link:hover { text-decoration: underline; }
+    .spx_badges { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 14px; }
+    .spx_badge {
+      font-size: 11px; padding: 3px 10px; border-radius: 999px;
+      border: 1px solid var(--spx-line); color: var(--spx-dim);
+    }
+    .spx_badge--api { color: var(--spx-violet); border-color: rgba(167,139,250,.4); font-family: Consolas, monospace; }
+    .spx_badge--model { color: var(--spx-teal); border-color: rgba(94,234,212,.35); }
+    .spx_case-desc { font-size: 13px; color: var(--spx-dim); }
+
+    /* 宿鹏翔：实测结果要点 */
+    .spx_findings { margin: 16px 0 18px; padding: 14px 18px; background: rgba(94,234,212,.05); border-left: 3px solid var(--spx-teal); border-radius: 0 10px 10px 0; }
+    .spx_findings-title { font-size: 13px; font-weight: 600; color: var(--spx-teal); margin-bottom: 6px; }
+    .spx_findings li { font-size: 13px; color: var(--spx-text); margin-left: 18px; margin-top: 4px; }
+    .spx_findings code { color: var(--spx-violet); font-size: 12px; }
+
+    /* 宿鹏翔：截图展示（点击放大） */
+    .spx_shots { display: grid; gap: 14px; }
+    .spx_shots--2 { grid-template-columns: 1fr 1fr; }
+    .spx_shot { cursor: zoom-in; }
+    .spx_shot img {
+      display: block; width: 100%; border-radius: 10px;
+      border: 1px solid var(--spx-line); transition: border-color .2s;
+    }
+    .spx_shot img:hover { border-color: rgba(94,234,212,.55); }
+    .spx_shot figcaption { font-size: 12px; color: var(--spx-dim); margin-top: 6px; text-align: center; }
+
+    /* 宿鹏翔：总结表 */
+    .spx_summary { margin-top: 38px; }
+    .spx_summary h2 { font-size: 20px; margin-bottom: 14px; }
+    .spx_table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .spx_table th, .spx_table td { padding: 11px 12px; border-bottom: 1px solid var(--spx-line); text-align: left; }
+    .spx_table th { color: var(--spx-dim); font-weight: 500; font-size: 12px; }
+    .spx_table td { color: var(--spx-text); }
+    .spx_table code { color: var(--spx-violet); font-size: 12px; }
+    .spx_pass { color: var(--spx-teal); font-weight: 600; white-space: nowrap; }
+
+    .spx_footer { margin-top: 40px; text-align: center; color: var(--spx-dim); font-size: 12px; }
+
+    /* 宿鹏翔：Lightbox 图片放大查看 */
+    .spx_lightbox {
+      position: fixed; inset: 0; z-index: 99;
+      background: rgba(3,6,12,.92); display: none;
+      align-items: center; justify-content: center; cursor: zoom-out;
+    }
+    .spx_lightbox.spx_open { display: flex; }
+    .spx_lightbox img { max-width: 94vw; max-height: 92vh; border-radius: 10px; }
+
+    /* 宿鹏翔：移动端适配 */
+    @media (max-width: 800px) {
+      .spx_stats, .spx_nav { grid-template-columns: repeat(2, 1fr); }
+      .spx_shots--2 { grid-template-columns: 1fr; }
+      .spx_hero h1 { font-size: 26px; }
+      .spx_case { padding: 18px; }
+      .spx_case-link { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="spx_wrap">
+    <a class="spx_back" href="index.html">← 返回首页</a>
+
+    <!-- 宿鹏翔：Hero —— 11.25 LLM 实践测试展示 -->
+    <header class="spx_hero">
+      <span class="spx_hero-tag">11.25 · LLM PRACTICE</span>
+      <h1>LLM 实践测试展示</h1>
+      <p class="spx_hero-sub">
+        基于本站后端接口完成四项大模型能力实测：在线客服多轮对话、知识库问答（RAG）、图片识别（多模态 VL）、语音识别（ASR）。
+        本页汇总每项测试的调用接口、模型平台、实测结果与过程截图，所有结果均为真实接口返回。
+      </p>
+      <div class="spx_hero-meta">
+        <span>测试人：<b>宿鹏翔</b></span>
+        <span>学号：<b>24002120405</b></span>
+        <span>测试日期：<b>2026-11-25</b></span>
+      </div>
+    </header>
+
+    <!-- 宿鹏翔：统计数据 -->
+    <section class="spx_stats">
+      <div class="spx_stat"><div class="spx_stat-num">4</div><div class="spx_stat-label">能力测试项</div></div>
+      <div class="spx_stat"><div class="spx_stat-num">3</div><div class="spx_stat-label">调用大模型</div></div>
+      <div class="spx_stat"><div class="spx_stat-num">2</div><div class="spx_stat-label">模型平台</div></div>
+      <div class="spx_stat"><div class="spx_stat-num">7</div><div class="spx_stat-label">实测截图</div></div>
+    </section>
+
+    <!-- 宿鹏翔：快速导航 -->
+    <nav class="spx_nav">
+      <a class="spx_nav-item" href="#spx_case1">
+        <div class="spx_nav-no">TEST 01</div>
+        <div class="spx_nav-name">在线客服对话</div>
+        <span class="spx_nav-pass">测试通过</span>
+      </a>
+      <a class="spx_nav-item" href="#spx_case2">
+        <div class="spx_nav-no">TEST 02</div>
+        <div class="spx_nav-name">知识库问答 RAG</div>
+        <span class="spx_nav-pass">测试通过</span>
+      </a>
+      <a class="spx_nav-item" href="#spx_case3">
+        <div class="spx_nav-no">TEST 03</div>
+        <div class="spx_nav-name">图片识别 VL</div>
+        <span class="spx_nav-pass">测试通过</span>
+      </a>
+      <a class="spx_nav-item" href="#spx_case4">
+        <div class="spx_nav-no">TEST 04</div>
+        <div class="spx_nav-name">语音识别 ASR</div>
+        <span class="spx_nav-pass">测试通过</span>
+      </a>
+    </nav>
+
+    <!-- ══════════ 测试 01：在线客服 ══════════ -->
+    <section class="spx_case" id="spx_case1">
+      <div class="spx_case-head">
+        <span class="spx_case-no">01</span>
+        <h2 class="spx_case-title">在线客服 · 多轮对话</h2>
+        <a class="spx_case-link" href="service.html">打开功能页 →</a>
+      </div>
+      <div class="spx_badges">
+        <span class="spx_badge spx_badge--api">POST /api/service</span>
+        <span class="spx_badge spx_badge--model">硅基流动 · Qwen/Qwen2.5-7B-Instruct</span>
+        <span class="spx_badge">支持切换七牛云</span>
+      </div>
+      <p class="spx_case-desc">
+        客服助手可回答本站页面、接口与技术栈相关问题。页面支持硅基流动 / 七牛云两个平台切换，对话中切换平台仍可延续当前上下文。
+      </p>
+      <div class="spx_findings">
+        <div class="spx_findings-title">实测结果</div>
+        <ul>
+          <li>点击快捷问题「网站有哪些页面？」，客服准确列出首页、科技新闻、图文列表、数据库连接测试、AI 聊天与在线客服共 6 个页面，并逐一说明职责。</li>
+          <li>快捷问题还支持「数据库怎么测试连接？」「这个网站用了什么技术？」，覆盖站点常见咨询。</li>
+          <li>多轮对话上下文连续，平台切换后对话不中断。</li>
+        </ul>
+      </div>
+      <div class="spx_shots">
+        <figure class="spx_shot">
+          <img src="images/llm/chat.png" alt="在线客服实测截图：提问网站有哪些页面，客服完整作答" loading="lazy" />
+          <figcaption>图 1 · 在线客服：提问「网站有哪些页面？」，模型完整列出站点页面与功能</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ══════════ 测试 02：知识库问答 ══════════ -->
+    <section class="spx_case" id="spx_case2">
+      <div class="spx_case-head">
+        <span class="spx_case-no">02</span>
+        <h2 class="spx_case-title">知识库问答 · 检索增强生成（RAG）</h2>
+        <a class="spx_case-link" href="kb.html">打开功能页 →</a>
+      </div>
+      <div class="spx_badges">
+        <span class="spx_badge spx_badge--api">POST /api/kb/ask</span>
+        <span class="spx_badge spx_badge--model">硅基流动 · Qwen/Qwen2.5-7B-Instruct</span>
+        <span class="spx_badge">先检索 · 后作答 · 附来源</span>
+      </div>
+      <p class="spx_case-desc">
+        上传门店文档构建专属知识库：系统先将文档切片，提问时检索相关片段，再交给大模型生成答案，并在答案后标注引用来源。
+        支持 doc / docx / ppt / pptx / pdf / txt / md，单文件不超过 10MB。
+      </p>
+      <div class="spx_findings">
+        <div class="spx_findings-title">实测结果</div>
+        <ul>
+          <li>知识库构建：上传《中华美食街常见问题.pptx》（4 个片段）与《中华美食街门店服务手册.docx》（4 个片段），共 <code>2 个文件 · 8 条片段</code>。</li>
+          <li>提问「你们几点营业？」，回答准确：每天 10:00 开始营业，21:30 停止点单，22:00 打烊；春节正月初一至初三休市，初四恢复营业，答案标注引用 <code>[2][3]</code>。</li>
+          <li>同步返回检索到的 3 条参考资料及相似度（6.421 / 3.656 / 1.803），答案可追溯、可核验。</li>
+        </ul>
+      </div>
+      <div class="spx_shots spx_shots--2">
+        <figure class="spx_shot">
+          <img src="images/llm/kb-upload.png" alt="知识库问答：上传两个门店文档，共 8 条片段" loading="lazy" />
+          <figcaption>图 2 · 上传门店文档构建知识库（2 文件 / 8 片段）</figcaption>
+        </figure>
+        <figure class="spx_shot">
+          <img src="images/llm/kb-answer.png" alt="知识库问答：营业时间问题，答案附 3 条参考资料" loading="lazy" />
+          <figcaption>图 3 · 提问营业时间，答案附引用与 3 条参考资料</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ══════════ 测试 03：图片识别 ══════════ -->
+    <section class="spx_case" id="spx_case3">
+      <div class="spx_case-head">
+        <span class="spx_case-no">03</span>
+        <h2 class="spx_case-title">图片识别 · 多模态视觉理解（VL）</h2>
+        <a class="spx_case-link" href="vision.html">打开功能页 →</a>
+      </div>
+      <div class="spx_badges">
+        <span class="spx_badge spx_badge--api">POST /api/vision</span>
+        <span class="spx_badge spx_badge--model">Qwen/Qwen3-VL-8B-Instruct</span>
+        <span class="spx_badge">token 用量 2247</span>
+      </div>
+      <p class="spx_case-desc">
+        上传一张图片（支持 jpg / jpeg / png / webp / gif，单文件不超过 8MB），由多模态大模型识别并返回中文描述：主体、场景、颜色与图中文字。
+        本次上传足球比赛俯瞰截图（屏幕截图(4).png · 3.24 MB），点击「开始识别」。
+      </p>
+      <div class="spx_findings">
+        <div class="spx_findings-title">实测结果</div>
+        <ul>
+          <li>场景理解准确：识别出绿茵场上两队球员（白色球衣 / 橙色球衣）围绕足球攻防，大型体育场看台坐满观众。</li>
+          <li>细节到位：提及橙色「SHANDONG TAISHAN」与蓝色「CLOSER TO THE HIGHLIGHTS」广告牌、高角度俯视构图与画面下方的战术小地图。</li>
+          <li>图中文字（OCR）识别正确：<code>SHANDONG TAISHAN</code>、<code>1956</code>、<code>CLOSER TO THE HIGHLIGHTS</code>。</li>
+        </ul>
+      </div>
+      <div class="spx_shots spx_shots--2">
+        <figure class="spx_shot">
+          <img src="images/llm/vision-upload.png" alt="图像识别操作页：上传足球比赛截图 3.24MB，点击开始识别" loading="lazy" />
+          <figcaption>图 4 · 上传足球比赛截图（3.24 MB），点击「开始识别」</figcaption>
+        </figure>
+        <figure class="spx_shot">
+          <img src="images/llm/vl-result.png" alt="图片识别结果：足球比赛场景描述与图中文字识别" loading="lazy" />
+          <figcaption>图 5 · 图片识别结果：场景描述完整，图中文字识别准确</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ══════════ 测试 04：语音识别 ══════════ -->
+    <section class="spx_case" id="spx_case4">
+      <div class="spx_case-head">
+        <span class="spx_case-no">04</span>
+        <h2 class="spx_case-title">语音识别 · 语音转文字（ASR）</h2>
+        <a class="spx_case-link" href="asr.html">打开功能页 →</a>
+      </div>
+      <div class="spx_badges">
+        <span class="spx_badge spx_badge--api">POST /api/asr</span>
+        <span class="spx_badge spx_badge--model">七牛云 · qwen-audio-3.0-asr-flash</span>
+      </div>
+      <p class="spx_case-desc">
+        页面可直接录音或上传音频文件（wav / mp3 / m4a / webm / ogg / amr，单文件不超过 20MB，录音最长 60 秒），由七牛云语音识别模型转写为文字。
+      </p>
+      <div class="spx_findings">
+        <div class="spx_findings-title">实测结果</div>
+        <ul>
+          <li>现场录音 3 秒（录音.webm · 58.8 KB），可试听后再识别。</li>
+          <li>识别结果「你好，你好，你好。」与录音内容一致，返回统计：音频时长 3 秒、共 9 字。</li>
+        </ul>
+      </div>
+      <div class="spx_shots spx_shots--2">
+        <figure class="spx_shot">
+          <img src="images/llm/asr-record.png" alt="语音识别页面：录音 3 秒，待识别" loading="lazy" />
+          <figcaption>图 6 · 页面录音 3 秒（webm · 58.8 KB），点击开始识别</figcaption>
+        </figure>
+        <figure class="spx_shot">
+          <img src="images/llm/asr-result.png" alt="语音识别结果：你好你好你好，共 9 字" loading="lazy" />
+          <figcaption>图 7 · 识别结果正确，返回音频时长与字数统计</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 宿鹏翔：测试总结 -->
+    <section class="spx_summary">
+      <h2>测试结论</h2>
+      <table class="spx_table">
+        <thead>
+          <tr><th>测试项</th><th>接口</th><th>调用模型</th><th>结果</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>在线客服 · 多轮对话</td>
+            <td><code>POST /api/service</code></td>
+            <td>Qwen/Qwen2.5-7B-Instruct</td>
+            <td class="spx_pass">✓ 通过</td>
+          </tr>
+          <tr>
+            <td>知识库问答 · RAG</td>
+            <td><code>POST /api/kb/ask</code></td>
+            <td>Qwen/Qwen2.5-7B-Instruct</td>
+            <td class="spx_pass">✓ 通过</td>
+          </tr>
+          <tr>
+            <td>图片识别 · VL</td>
+            <td><code>POST /api/vision</code></td>
+            <td>Qwen/Qwen3-VL-8B-Instruct</td>
+            <td class="spx_pass">✓ 通过</td>
+          </tr>
+          <tr>
+            <td>语音识别 · ASR</td>
+            <td><code>POST /api/asr</code></td>
+            <td>qwen-audio-3.0-asr-flash</td>
+            <td class="spx_pass">✓ 通过</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="spx_footer">
+      <p>宿鹏翔 · 24002120405 · 2026-11-25 · LLM 实践测试展示</p>
+      <p style="margin-top:6px;">点击任意截图可放大查看</p>
+    </footer>
+  </main>
+
+  <!-- 宿鹏翔：Lightbox 遮罩层 -->
+  <div class="spx_lightbox" id="spx_lightbox"><img id="spx_lightboxImg" alt="截图放大预览" /></div>
+
+  <script>
+    // ══════════════════════════════════════════
+    //  宿鹏翔：截图点击放大（Lightbox）
+    // ══════════════════════════════════════════
+    const SPX_LIGHTBOX = document.getElementById('spx_lightbox');
+    const SPX_LIGHTBOX_IMG = document.getElementById('spx_lightboxImg');
+
+    // 宿鹏翔：给所有截图绑定点击放大
+    document.querySelectorAll('.spx_shot img').forEach(function (spx_img) {
+      spx_img.addEventListener('click', function () {
+        SPX_LIGHTBOX_IMG.src = spx_img.src;
+        SPX_LIGHTBOX_IMG.alt = spx_img.alt;
+        SPX_LIGHTBOX.classList.add('spx_open');
+      });
+    });
+
+    // 宿鹏翔：点击遮罩或按 Esc 关闭
+    SPX_LIGHTBOX.addEventListener('click', function () {
+      SPX_LIGHTBOX.classList.remove('spx_open');
+    });
+    document.addEventListener('keydown', function (spx_e) {
+      if (spx_e.key === 'Escape') SPX_LIGHTBOX.classList.remove('spx_open');
+    });
+  </script>
+</body>
+</html>

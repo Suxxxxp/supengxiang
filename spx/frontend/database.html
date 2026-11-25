@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!-- 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宿鹏翔（24002120405）数据库连接测试页，提交账号密码调用后端接口验证 MySQL 连接。" />
+  <title>数据库连接测试 | 宿鹏翔</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23060a14'%3ES%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/spx_database.css" />
+</head>
+<body>
+  <main class="spx_wrap">
+    <a class="spx_back" href="index.html">← 返回首页</a>
+
+    <header class="spx_header">
+      <p class="spx_tag">功能测试</p>
+      <h1 class="spx_title">数据库连接测试</h1>
+      <p class="spx_desc">
+        提交账号密码到后端 <code>/api/db-test</code>，由后端使用 mysql2 连接 MySQL 并返回数据库版本。
+      </p>
+    </header>
+
+    <form class="spx_panel" id="spx_dbForm">
+      <div class="spx_field">
+        <label class="spx_label" for="spx_username">用户名</label>
+        <input class="spx_input" id="spx_username" name="user" type="text" value="root" autocomplete="username" />
+      </div>
+
+      <div class="spx_field">
+        <label class="spx_label" for="spx_password">密码</label>
+        <input class="spx_input" id="spx_password" name="password" type="password" value="root" autocomplete="current-password" />
+      </div>
+
+      <button class="spx_btn" id="spx_testBtn" type="submit">测试连接</button>
+
+      <p class="spx_result" id="spx_result" role="status"></p>
+      <p class="spx_tip">提示：账号或密码留空时，后端会使用 backend/.env 中的默认配置。</p>
+    </form>
+
+    <footer class="spx_footer">宿鹏翔 · 24002120405</footer>
+  </main>
+
+  <script src="js/spx_database.js"></script>
+</body>
+</html>

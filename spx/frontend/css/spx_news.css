@@ -1,0 +1,294 @@
+/* 姓名：宿鹏翔 | 学号：24002120405 | 时间：2026-11-25 | 大模型：DeepSeek-V4.1-Flash */
+/* 功能：科技新闻列表页样式 */
+
+:root {
+  --spx_bg: #05070f;
+  --spx_text: #e9eefb;
+  --spx_muted: #93a0bd;
+  --spx_cyan: #5eead4;
+  --spx_blue: #60a5fa;
+  --spx_violet: #a78bfa;
+  --spx_line: rgba(255, 255, 255, 0.1);
+  --spx_card: rgba(255, 255, 255, 0.045);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background: var(--spx_bg);
+  color: var(--spx_text);
+}
+
+/* 页面光晕背景 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58vw 58vw at 12% 8%, rgba(96, 165, 250, 0.16), transparent 62%),
+    radial-gradient(52vw 52vw at 88% 92%, rgba(167, 139, 250, 0.16), transparent 62%);
+}
+
+.spx_wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 860px;
+  padding: 56px 20px 48px;
+}
+
+.spx_back {
+  display: inline-block;
+  margin-bottom: 28px;
+  color: var(--spx_muted);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.spx_back:hover {
+  color: var(--spx_cyan);
+}
+
+.spx_tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.1);
+  color: #9ec5ff;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.spx_tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--spx_cyan);
+  box-shadow: 0 0 10px var(--spx_cyan);
+}
+
+.spx_title {
+  margin: 18px 0 18px;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.25;
+  background: linear-gradient(100deg, #ffffff 10%, #9ec5ff 50%, #c4b5fd 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 接口地址展示条 */
+.spx_api-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--spx_card);
+  border: 1px solid var(--spx_line);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.spx_api-label {
+  font-size: 13px;
+  color: var(--spx_muted);
+}
+
+.spx_api-value {
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  color: var(--spx_cyan);
+  background: rgba(94, 234, 212, 0.1);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+}
+
+.spx_api-full {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  color: #7f8db0;
+  word-break: break-all;
+}
+
+/* 列表区标题 */
+.spx_section {
+  margin-top: 36px;
+}
+
+.spx_section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--spx_line);
+}
+
+.spx_section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.spx_section-title::before {
+  content: "";
+  width: 4px;
+  height: 18px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, var(--spx_cyan), var(--spx_violet));
+}
+
+.spx_section-count {
+  color: var(--spx_muted);
+  font-size: 13px;
+}
+
+/* 加载 / 错误状态 */
+.spx_status {
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--spx_muted);
+  background: var(--spx_card);
+  border: 1px dashed var(--spx_line);
+}
+
+.spx_status--hidden {
+  display: none;
+}
+
+.spx_status--error {
+  color: #fc8181;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+/* 新闻列表 */
+.spx_list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spx_news-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--spx_line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+  animation: spx_rise 0.5s ease both;
+  animation-delay: calc(var(--spx_i, 0) * 45ms);
+}
+
+.spx_news-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(96, 165, 250, 0.45);
+}
+
+.spx_news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--spx_muted);
+}
+
+.spx_news-source {
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #9ec5ff;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+}
+
+.spx_news-index {
+  margin-left: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  color: #5c6b8c;
+}
+
+.spx_news-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.spx_news-summary {
+  color: var(--spx_muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.spx_footer {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--spx_line);
+  color: var(--spx_muted);
+  font-size: 13px;
+}
+
+@keyframes spx_rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .spx_wrap {
+    padding: 40px 16px 32px;
+  }
+
+  .spx_news-item {
+    padding: 18px;
+  }
+
+  .spx_news-title {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spx_news-item {
+    animation: none;
+  }
+
+  .spx_news-item,
+  .spx_back {
+    transition: none;
+  }
+}
